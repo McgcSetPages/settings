@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>検索機能付き二重テーブルとコピーボタン</title>
+    <title>内線電話セッティング</title>
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -46,6 +46,16 @@
         }
         .clear-btn {
             background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .share-btn {
+            background-color: #FF9800;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -183,18 +193,80 @@
             display: none;
             margin-top: 10px;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+        .modal-content {
+            background-color: #f9f9f9;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .modal-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .share-url {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .share-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .notification {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>検索機能付き二重テーブルとコピーボタン</h1>
+        <h1>内線電話セッティング</h1>
+        
+        <div id="notification" class="notification">URLから共有データを読み込みました！</div>
+        
         <div class="search-container">
             <input type="text" id="searchBox" class="search-box" placeholder="IDを入力して検索...">
             <div class="button-container">
                 <button class="search-btn" onclick="searchTables()">検索</button>
                 <button class="clear-btn" onclick="clearTables()">クリア</button>
+                <button class="share-btn" onclick="openShareModal()">共有</button>
             </div>
         </div>
+        
         <div class="results-section">
             <div class="result-container" id="smartpbxResultContainer">
                 <h2 class="result-title">SmartPBX 検索結果</h2>
@@ -293,6 +365,21 @@
             </div>
         </div>
     </div>
+
+    <!-- 共有モーダル -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeShareModal()">&times;</span>
+            <h2 class="modal-title">テーブルデータを共有</h2>
+            <p>以下のURLをコピーして他のデバイスと共有できます：</p>
+            <div class="share-url" id="shareUrl"></div>
+            <div class="share-container">
+                <button class="copy-btn" onclick="copyShareUrl()">URLをコピー</button>
+                <div class="copy-success" id="urlCopySuccess">コピーしました！</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // LocalStorageのキー
         const SMARTPBX_DATA_KEY = 'smartpbxTableData';
@@ -300,9 +387,29 @@
 
         // ページ読み込み時の処理
         document.addEventListener('DOMContentLoaded', function() {
-            // LocalStorageからデータを取得
-            loadTableDataFromLocalStorage('smartpbx');
-            loadTableDataFromLocalStorage('sansan');
+            // URLからデータを読み込む（優先）
+            const urlData = getDataFromUrl();
+            if (urlData) {
+                if (urlData.smartpbx) {
+                    populateTable('smartpbx', urlData.smartpbx);
+                    saveTableDataToLocalStorage('smartpbx', urlData.smartpbx);
+                }
+                if (urlData.sansan) {
+                    populateTable('sansan', urlData.sansan);
+                    saveTableDataToLocalStorage('sansan', urlData.sansan);
+                }
+                
+                // 通知を表示
+                const notification = document.getElementById('notification');
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            } else {
+                // URLにデータがない場合はLocalStorageから読み込む
+                loadTableDataFromLocalStorage('smartpbx');
+                loadTableDataFromLocalStorage('sansan');
+            }
             
             // 検索ボックスにEnterキーイベントを追加
             document.getElementById('searchBox').addEventListener('keypress', function(e) {
@@ -311,6 +418,75 @@
                 }
             });
         });
+
+        // URLからデータを取得
+        function getDataFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataParam = urlParams.get('data');
+            
+            if (!dataParam) return null;
+            
+            try {
+                // Base64デコードしてJSONに変換
+                const jsonData = atob(dataParam);
+                return JSON.parse(jsonData);
+            } catch (error) {
+                console.error('URLからのデータ読み込みに失敗しました:', error);
+                return null;
+            }
+        }
+
+        // 現在のデータをURLに埋め込む
+        function generateShareUrl() {
+            const data = {
+                smartpbx: JSON.parse(localStorage.getItem(SMARTPBX_DATA_KEY)) || [],
+                sansan: JSON.parse(localStorage.getItem(SANSAN_DATA_KEY)) || []
+            };
+            
+            // JSONをBase64にエンコード
+            const jsonData = JSON.stringify(data);
+            const base64Data = btoa(jsonData);
+            
+            // URLを生成
+            const url = new URL(window.location.href);
+            url.search = '';  // クエリパラメータをクリア
+            url.searchParams.set('data', base64Data);
+            
+            return url.toString();
+        }
+
+        // 共有モーダルを開く
+        function openShareModal() {
+            const modal = document.getElementById('shareModal');
+            const shareUrl = document.getElementById('shareUrl');
+            
+            shareUrl.textContent = generateShareUrl();
+            modal.style.display = 'block';
+        }
+
+        // 共有モーダルを閉じる
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+            modal.style.display = 'none';
+        }
+
+        // 共有URLをコピー
+        function copyShareUrl() {
+            const shareUrl = document.getElementById('shareUrl');
+            const text = shareUrl.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const successElement = document.getElementById('urlCopySuccess');
+                successElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 2000);
+            }).catch(err => {
+                console.error('URLのコピーに失敗しました:', err);
+                alert('URLのコピーに失敗しました。');
+            });
+        }
 
         // テーブルデータをLocalStorageに保存
         function saveTableDataToLocalStorage(tableType, data) {
@@ -359,6 +535,11 @@
             document.getElementById('sansanResultContainer').style.display = 'none';
             document.getElementById('noResults').style.display = 'none';
             document.getElementById('searchBox').value = '';
+            
+            // URLからクエリパラメータを削除
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // CSVファイルを読み込む
@@ -480,6 +661,25 @@
         // テキストをクリップボードにコピー
         function copyText(elementId) {
             const text = document.getElementById(elementId).textContent;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                // モダンなClipboard API（より信頼性が高い）
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        showCopySuccess(elementId);
+                    })
+                    .catch(err => {
+                        console.error('コピーに失敗しました:', err);
+                        fallbackCopy(text, elementId);
+                    });
+            } else {
+                // フォールバックメソッド
+                fallbackCopy(text, elementId);
+            }
+        }
+        
+        // フォールバックのコピーメソッド
+        function fallbackCopy(text, elementId) {
             const textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
@@ -491,16 +691,7 @@
 
             try {
                 document.execCommand('copy');
-
-                // 成功メッセージを表示
-                const successElement = document.getElementById(`${elementId}Success`);
-                successElement.style.display = 'block';
-
-                // 2秒後にメッセージを非表示
-                setTimeout(() => {
-                    successElement.style.display = 'none';
-                }, 2000);
-
+                showCopySuccess(elementId);
             } catch (err) {
                 console.error('コピーに失敗しました:', err);
                 alert('コピーに失敗しました。');
@@ -508,6 +699,24 @@
 
             document.body.removeChild(textArea);
         }
+        
+        // コピー成功メッセージを表示
+        function showCopySuccess(elementId) {
+            const successElement = document.getElementById(`${elementId}Success`);
+            successElement.style.display = 'block';
+            
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 2000);
+        }
+        
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('shareModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
