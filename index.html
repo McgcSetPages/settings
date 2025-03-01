@@ -5,45 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartPBX & Sansan テーブル</title>
     <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 16px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            color: #3498db;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 1rem;
+            gap: 8px;
+        }
+        
+        #searchBox {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .search-btn {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .search-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .table-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: white;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
         }
+        
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
+        
         th {
             background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
+        
+        .results-container {
+            background-color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .results-container p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
         .copy-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
             cursor: pointer;
-            color: blue;
-            text-decoration: underline;
+        }
+        
+        .copy-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .value {
+            word-break: break-all;
+        }
+        
+        .message {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <h1>SmartPBX & Sansan テーブル</h1>
-    <input type="text" id="searchBox" placeholder="IDで検索">
-    <button onclick="searchTables()">検索</button>
+    
+    <div class="search-container">
+        <input type="text" id="searchBox" placeholder="IDで検索">
+        <button class="search-btn" onclick="searchTables()">検索</button>
+    </div>
 
     <h2>SmartPBX 検索結果</h2>
-    <div id="smartPBXResults"></div>
+    <div id="smartPBXResults" class="results-container">
+        <p class="message">IDを入力して検索してください</p>
+    </div>
 
     <h2>Sansan 検索結果</h2>
-    <div id="sansanResults"></div>
+    <div id="sansanResults" class="results-container">
+        <p class="message">IDを入力して検索してください</p>
+    </div>
 
     <h2>SmartPBX テーブル</h2>
-    <table id="smartPBXTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>ユーザ名</th>
-                <th>パスワード</th>
-                <th>コード</th>
-            </tr>
-        </thead>
+    <div class="table-container">
+        <table id="smartPBXTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ユーザ名</th>
+                    <th>パスワード</th>
+                    <th>コード</th>
+                </tr>
+            </thead>
         <tbody>
             <!-- SmartPBXアカウントリスト.csvのデータをここに埋め込む -->
 <tr><td>3001</td><td>uCzvq23001</td><td>VPP9ipAp</td><td>07528nqs.d</td></tr>
@@ -174,17 +294,19 @@
 <tr><td>9009</td><td>uCzvq29009</td><td>Oo4FMtb3</td><td>07528nqs.d</td></tr>
 <tr><td>9010</td><td>uCzvq29010</td><td>P4rYSjx2</td><td>07528nqs.d</td></tr>
         </tbody>
-    </table>
+        </table>
+    </div>
 
     <h2>Sansan テーブル</h2>
-    <table id="sansanTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>ユーザ名</th>
-                <th>パスワード</th>
-            </tr>
-        </thead>
+    <div class="table-container">
+        <table id="sansanTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ユーザ名</th>
+                    <th>パスワード</th>
+                </tr>
+            </thead>
         <tbody>
             <!-- Sansanアカウントリスト.csvのデータをここに埋め込む -->
 <tr><td>2035</td><td>035@mie.cgc</td><td>Mie2Mie5</td></tr>
@@ -261,7 +383,8 @@
 <tr><td>2306</td><td>306@mie.cgc</td><td>Mie2Mie5</td></tr>
 <tr><td>2307</td><td>307@mie.cgc</td><td>Mie2Mie5</td></tr>
         </tbody>
-    </table>
+        </table>
+    </div>
 
     <script>
         const smartPBXData = [
@@ -483,26 +606,75 @@
 
             if (smartPBXMatch) {
                 smartPBXResults.innerHTML = `
-                    <p>ID: ${smartPBXMatch.id}</p>
-                    <p>ユーザ名: ${smartPBXMatch.username} <span class="copy-button" onclick="copyToClipboard('${smartPBXMatch.username}')">コピー</span></p>
-                    <p>パスワード: ${smartPBXMatch.password} <span class="copy-button" onclick="copyToClipboard('${smartPBXMatch.password}')">コピー</span></p>
-                    <p>コード: ${smartPBXMatch.code} <span class="copy-button" onclick="copyToClipboard('${smartPBXMatch.code}')">コピー</span></p>
+                    <p>
+                        <span><span class="label">ID:</span> <span class="value">${smartPBXMatch.id}</span></span>
+                    </p>
+                    <p>
+                        <span><span class="label">ユーザ名:</span> <span class="value">${smartPBXMatch.username}</span></span>
+                        <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.username}')">コピー</button>
+                    </p>
+                    <p>
+                        <span><span class="label">パスワード:</span> <span class="value">${smartPBXMatch.password}</span></span>
+                        <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.password}')">コピー</button>
+                    </p>
+                    <p>
+                        <span><span class="label">コード:</span> <span class="value">${smartPBXMatch.code}</span></span>
+                        <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.code}')">コピー</button>
+                    </p>
                 `;
+            } else {
+                smartPBXResults.innerHTML = `<p class="message">該当するSmartPBXデータが見つかりませんでした</p>`;
             }
 
             if (sansanMatch) {
                 sansanResults.innerHTML = `
-                    <p>ID: ${sansanMatch.id}</p>
-                    <p>ユーザ名: ${sansanMatch.username} <span class="copy-button" onclick="copyToClipboard('${sansanMatch.username}')">コピー</span></p>
-                    <p>パスワード: ${sansanMatch.password} <span class="copy-button" onclick="copyToClipboard('${sansanMatch.password}')">コピー</span></p>
+                    <p>
+                        <span><span class="label">ID:</span> <span class="value">${sansanMatch.id}</span></span>
+                    </p>
+                    <p>
+                        <span><span class="label">ユーザ名:</span> <span class="value">${sansanMatch.username}</span></span>
+                        <button class="copy-button" onclick="copyToClipboard('${sansanMatch.username}')">コピー</button>
+                    </p>
+                    <p>
+                        <span><span class="label">パスワード:</span> <span class="value">${sansanMatch.password}</span></span>
+                        <button class="copy-button" onclick="copyToClipboard('${sansanMatch.password}')">コピー</button>
+                    </p>
                 `;
+            } else {
+                sansanResults.innerHTML = `<p class="message">該当するSansanデータが見つかりませんでした</p>`;
             }
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("コピーしました: " + text);
-            });
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    // コピー成功時の視覚的フィードバック
+                    const notification = document.createElement('div');
+                    notification.textContent = 'コピーしました';
+                    notification.style.position = 'fixed';
+                    notification.style.bottom = '20px';
+                    notification.style.left = '50%';
+                    notification.style.transform = 'translateX(-50%)';
+                    notification.style.backgroundColor = '#27ae60';
+                    notification.style.color = 'white';
+                    notification.style.padding = '10px 20px';
+                    notification.style.borderRadius = '5px';
+                    notification.style.zIndex = '1000';
+                    
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transition = 'opacity 0.5s';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 500);
+                    }, 1500);
+                })
+                .catch(err => {
+                    console.error('コピーに失敗しました:', err);
+                    alert('コピーに失敗しました');
+                });
         }
     </script>
 </body>
