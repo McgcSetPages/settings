@@ -3,720 +3,507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>内線電話セッティング</title>
+    <title>SmartPBX & Sansan テーブル</title>
     <style>
-        body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        .search-box {
-            padding: 8px 12px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            flex-grow: 1;
-            max-width: 300px;
-        }
-        .button-container {
-            display: flex;
-            gap: 10px;
-        }
-        .search-btn {
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .clear-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .share-btn {
-            background-color: #FF9800;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .results-section {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .result-container {
-            flex: 1;
-            min-width: 300px;
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            display: none;
-        }
-        .result-title {
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        .copy-btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .copy-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            flex: 1;
-            min-width: 200px;
-        }
-        .copy-label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        .copy-text {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: white;
-            font-family: monospace;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .copy-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .copy-btn:hover {
-            background-color: #45a049;
-        }
-        .copy-success {
-            font-size: 12px;
-            color: #4CAF50;
-            margin-top: 3px;
-            display: none;
-        }
-        .tables-section {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .table-wrapper {
-            flex: 1;
-            min-width: 300px;
-        }
-        .table-title {
-            margin-bottom: 10px;
-            color: #333;
-        }
-        .csv-input-container {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .csv-input {
-            flex-grow: 1;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
-            text-align: left;
         }
         th {
             background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .highlighted {
-            background-color: #ffffc0 !important;
-        }
-        .table-container {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-        }
-        .no-results {
-            color: #d9534f;
-            font-style: italic;
-            display: none;
-            margin-top: 10px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-        }
-        .modal-content {
-            background-color: #f9f9f9;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 500px;
-            max-height: 80%;
-            overflow-y: auto;
-        }
-        .modal-title {
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+        .copy-button {
             cursor: pointer;
-        }
-        .close:hover {
-            color: #000;
-        }
-        .share-url {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: monospace;
-            word-break: break-all;
-        }
-        .share-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 10px;
-        }
-        .notification {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: none;
+            color: blue;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>内線電話セッティング</h1>
-        
-        <div id="notification" class="notification">URLから共有データを読み込みました！</div>
-        
-        <div class="search-container">
-            <input type="text" id="searchBox" class="search-box" placeholder="IDを入力して検索...">
-            <div class="button-container">
-                <button class="search-btn" onclick="searchTables()">検索</button>
-                <button class="clear-btn" onclick="clearTables()">クリア</button>
-                <button class="share-btn" onclick="openShareModal()">共有</button>
-            </div>
-        </div>
-        
-        <div class="results-section">
-            <div class="result-container" id="smartpbxResultContainer">
-                <h2 class="result-title">SmartPBX 検索結果</h2>
-                <div class="copy-btn-group">
-                    <div class="copy-item">
-                        <div class="copy-label">ユーザ名</div>
-                        <div class="copy-text" id="smartpbxUsername"></div>
-                        <button class="copy-btn" onclick="copyText('smartpbxUsername')">コピー</button>
-                        <div class="copy-success" id="smartpbxUsernameSuccess">コピーしました！</div>
-                    </div>
-                    <div class="copy-item">
-                        <div class="copy-label">パスワード</div>
-                        <div class="copy-text" id="smartpbxPassword"></div>
-                        <button class="copy-btn" onclick="copyText('smartpbxPassword')">コピー</button>
-                        <div class="copy-success" id="smartpbxPasswordSuccess">コピーしました！</div>
-                    </div>
-                    <div class="copy-item">
-                        <div class="copy-label">コード</div>
-                        <div class="copy-text" id="smartpbxCode"></div>
-                        <button class="copy-btn" onclick="copyText('smartpbxCode')">コピー</button>
-                        <div class="copy-success" id="smartpbxCodeSuccess">コピーしました！</div>
-                    </div>
-                </div>
-            </div>
-            <div class="result-container" id="sansanResultContainer">
-                <h2 class="result-title">Sansan 検索結果</h2>
-                <div class="copy-btn-group">
-                    <div class="copy-item">
-                        <div class="copy-label">ユーザ名</div>
-                        <div class="copy-text" id="sansanUsername"></div>
-                        <button class="copy-btn" onclick="copyText('sansanUsername')">コピー</button>
-                        <div class="copy-success" id="sansanUsernameSuccess">コピーしました！</div>
-                    </div>
-                    <div class="copy-item">
-                        <div class="copy-label">パスワード</div>
-                        <div class="copy-text" id="sansanPassword"></div>
-                        <button class="copy-btn" onclick="copyText('sansanPassword')">コピー</button>
-                        <div class="copy-success" id="sansanPasswordSuccess">コピーしました！</div>
-                    </div>
-                    <div class="copy-item">
-                        <div class="copy-label">コード</div>
-                        <div class="copy-text" id="sansanCode"></div>
-                        <button class="copy-btn" onclick="copyText('sansanCode')">コピー</button>
-                        <div class="copy-success" id="sansanCodeSuccess">コピーしました！</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="no-results" id="noResults">
-            検索結果が見つかりませんでした。別のIDで検索してください。
-        </div>
-        <div class="tables-section">
-            <div class="table-wrapper">
-                <h2 class="table-title">SmartPBX テーブル</h2>
-                <div class="csv-input-container">
-                    <input type="file" id="smartpbxCsvInput" class="csv-input" accept=".csv">
-                    <button class="search-btn" onclick="loadCsv('smartpbx')">CSV読込</button>
-                </div>
-                <div class="table-container">
-                    <table id="smartpbxTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>ユーザ名</th>
-                                <th>パスワード</th>
-                                <th>コード</th>
-                            </tr>
-                        </thead>
-                        <tbody id="smartpbxTableBody">
-                            <!-- JavaScriptでテーブルデータを生成 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="table-wrapper">
-                <h2 class="table-title">Sansan テーブル</h2>
-                <div class="csv-input-container">
-                    <input type="file" id="sansanCsvInput" class="csv-input" accept=".csv">
-                    <button class="search-btn" onclick="loadCsv('sansan')">CSV読込</button>
-                </div>
-                <div class="table-container">
-                    <table id="sansanTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>ユーザ名</th>
-                                <th>パスワード</th>
-                                <th>コード</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sansanTableBody">
-                            <!-- JavaScriptでテーブルデータを生成 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+    <h1>SmartPBX & Sansan テーブル</h1>
+    <input type="text" id="searchBox" placeholder="IDで検索">
+    <button onclick="searchTables()">検索</button>
 
-    <!-- 共有モーダル -->
-    <div id="shareModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeShareModal()">&times;</span>
-            <h2 class="modal-title">テーブルデータを共有</h2>
-            <p>以下のURLをコピーして他のデバイスと共有できます：</p>
-            <div class="share-url" id="shareUrl"></div>
-            <div class="share-container">
-                <button class="copy-btn" onclick="copyShareUrl()">URLをコピー</button>
-                <div class="copy-success" id="urlCopySuccess">コピーしました！</div>
-            </div>
-        </div>
-    </div>
+    <h2>SmartPBX テーブル</h2>
+    <table id="smartPBXTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ユーザ名</th>
+                <th>パスワード</th>
+                <th>コード</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- SmartPBXアカウントリスト.csvのデータをここに埋め込む -->
+<tr><td>3001</td><td>uCzvq23001</td><td>VPP9ipAp</td><td>07528nqs.d</td></tr>
+<tr><td>3002</td><td>uCzvq23002</td><td>lNmZ6aoK</td><td>07528nqs.d</td></tr>
+<tr><td>3003</td><td>uCzvq23003</td><td>DW2j2tcB</td><td>07528nqs.d</td></tr>
+<tr><td>3004</td><td>uCzvq23004</td><td>Xj2j1eaC</td><td>07528nqs.d</td></tr>
+<tr><td>3005</td><td>uCzvq23005</td><td>G8DvM5RM</td><td>07528nqs.d</td></tr>
+<tr><td>3006</td><td>uCzvq23006</td><td>kWwE6hw5</td><td>07528nqs.d</td></tr>
+<tr><td>3007</td><td>uCzvq23007</td><td>e0nOXxa2</td><td>07528nqs.d</td></tr>
+<tr><td>3008</td><td>uCzvq23008</td><td>585II7F8</td><td>07528nqs.d</td></tr>
+<tr><td>3009</td><td>uCzvq23009</td><td>vpBlKu4S</td><td>07528nqs.d</td></tr>
+<tr><td>3010</td><td>uCzvq23010</td><td>IODaN8nH</td><td>07528nqs.d</td></tr>
+<tr><td>3011</td><td>uCzvq23011</td><td>V8l1JU5v</td><td>07528nqs.d</td></tr>
+<tr><td>3012</td><td>uCzvq23012</td><td>il0et2tY</td><td>07528nqs.d</td></tr>
+<tr><td>3013</td><td>uCzvq23013</td><td>49FrJQ5s</td><td>07528nqs.d</td></tr>
+<tr><td>3014</td><td>uCzvq23014</td><td>1kqKj8Yz</td><td>07528nqs.d</td></tr>
+<tr><td>3015</td><td>uCzvq23015</td><td>nZ7H0Nr0</td><td>07528nqs.d</td></tr>
+<tr><td>3016</td><td>uCzvq23016</td><td>xoEg5Zy6</td><td>07528nqs.d</td></tr>
+<tr><td>3017</td><td>uCzvq23017</td><td>oOBwRO1X</td><td>07528nqs.d</td></tr>
+<tr><td>2035</td><td>uCzvq22035</td><td>am9Fglr1</td><td>07528nqs.d</td></tr>
+<tr><td>2036</td><td>uCzvq22036</td><td>2hkNpKKI</td><td>07528nqs.d</td></tr>
+<tr><td>2142</td><td>uCzvq22142</td><td>RvJ782yh</td><td>07528nqs.d</td></tr>
+<tr><td>2143</td><td>uCzvq22143</td><td>CAZ1I794</td><td>07528nqs.d</td></tr>
+<tr><td>2144</td><td>uCzvq22144</td><td>8VH1zvn7</td><td>07528nqs.d</td></tr>
+<tr><td>2146</td><td>uCzvq22146</td><td>E8EUr2uF</td><td>07528nqs.d</td></tr>
+<tr><td>2149</td><td>uCzvq22149</td><td>ifT3koAG</td><td>07528nqs.d</td></tr>
+<tr><td>2150</td><td>uCzvq22150</td><td>kahFc1Gm</td><td>07528nqs.d</td></tr>
+<tr><td>2151</td><td>uCzvq22151</td><td>U6S1ddYA</td><td>07528nqs.d</td></tr>
+<tr><td>2156</td><td>uCzvq22156</td><td>4MpJygVD</td><td>07528nqs.d</td></tr>
+<tr><td>2158</td><td>uCzvq22158</td><td>6enOe3EI</td><td>07528nqs.d</td></tr>
+<tr><td>2163</td><td>uCzvq22163</td><td>64RpxKGv</td><td>07528nqs.d</td></tr>
+<tr><td>2164</td><td>uCzvq22164</td><td>M8IRx2pT</td><td>07528nqs.d</td></tr>
+<tr><td>2165</td><td>uCzvq22165</td><td>8lwNZvxZ</td><td>07528nqs.d</td></tr>
+<tr><td>2167</td><td>uCzvq22167</td><td>1yRbzgkz</td><td>07528nqs.d</td></tr>
+<tr><td>2169</td><td>uCzvq22169</td><td>99hTZVtF</td><td>07528nqs.d</td></tr>
+<tr><td>2170</td><td>uCzvq22170</td><td>OgEJM9Wm</td><td>07528nqs.d</td></tr>
+<tr><td>2171</td><td>uCzvq22171</td><td>QnqPq8g3</td><td>07528nqs.d</td></tr>
+<tr><td>2172</td><td>uCzvq22172</td><td>vzKeOb5X</td><td>07528nqs.d</td></tr>
+<tr><td>2173</td><td>uCzvq22173</td><td>C8QI3iUw</td><td>07528nqs.d</td></tr>
+<tr><td>2174</td><td>uCzvq22174</td><td>feDx0gQD</td><td>07528nqs.d</td></tr>
+<tr><td>2176</td><td>uCzvq22176</td><td>4LblIrWU</td><td>07528nqs.d</td></tr>
+<tr><td>2177</td><td>uCzvq22177</td><td>NHCKIKA4</td><td>07528nqs.d</td></tr>
+<tr><td>2178</td><td>uCzvq22178</td><td>XPoDrB1b</td><td>07528nqs.d</td></tr>
+<tr><td>2179</td><td>uCzvq22179</td><td>JsY3AEp7</td><td>07528nqs.d</td></tr>
+<tr><td>2181</td><td>uCzvq22181</td><td>Q0fGM79x</td><td>07528nqs.d</td></tr>
+<tr><td>2182</td><td>uCzvq22182</td><td>cJ4ThIlm</td><td>07528nqs.d</td></tr>
+<tr><td>2183</td><td>uCzvq22183</td><td>mVu5BE8p</td><td>07528nqs.d</td></tr>
+<tr><td>2184</td><td>uCzvq22184</td><td>5x4nLZZp</td><td>07528nqs.d</td></tr>
+<tr><td>2185</td><td>uCzvq22185</td><td>j94ikSkg</td><td>07528nqs.d</td></tr>
+<tr><td>2187</td><td>uCzvq22187</td><td>53Yvepgo</td><td>07528nqs.d</td></tr>
+<tr><td>2188</td><td>uCzvq22188</td><td>GBSSuG8F</td><td>07528nqs.d</td></tr>
+<tr><td>2189</td><td>uCzvq22189</td><td>8RsynFjd</td><td>07528nqs.d</td></tr>
+<tr><td>2192</td><td>uCzvq22192</td><td>DkMjB8Xz</td><td>07528nqs.d</td></tr>
+<tr><td>2195</td><td>uCzvq22195</td><td>Bkt7ypx5</td><td>07528nqs.d</td></tr>
+<tr><td>2196</td><td>uCzvq22196</td><td>KqwK2m6W</td><td>07528nqs.d</td></tr>
+<tr><td>2197</td><td>uCzvq22197</td><td>DboT8TVS</td><td>07528nqs.d</td></tr>
+<tr><td>2204</td><td>uCzvq22204</td><td>4Wk0bK9L</td><td>07528nqs.d</td></tr>
+<tr><td>2207</td><td>uCzvq22207</td><td>CP0zFxje</td><td>07528nqs.d</td></tr>
+<tr><td>2214</td><td>uCzvq22214</td><td>C92NWAHq</td><td>07528nqs.d</td></tr>
+<tr><td>2217</td><td>uCzvq22217</td><td>xl9Xfd67</td><td>07528nqs.d</td></tr>
+<tr><td>2218</td><td>uCzvq22218</td><td>sevRO3AZ</td><td>07528nqs.d</td></tr>
+<tr><td>2221</td><td>uCzvq22221</td><td>hscTQhU1</td><td>07528nqs.d</td></tr>
+<tr><td>2222</td><td>uCzvq22222</td><td>p1zvJVPk</td><td>07528nqs.d</td></tr>
+<tr><td>2225</td><td>uCzvq22225</td><td>DiW4I7vE</td><td>07528nqs.d</td></tr>
+<tr><td>2226</td><td>uCzvq22226</td><td>EugYrz5h</td><td>07528nqs.d</td></tr>
+<tr><td>2233</td><td>uCzvq22233</td><td>28OiNWGM</td><td>07528nqs.d</td></tr>
+<tr><td>2237</td><td>uCzvq22237</td><td>7wxdGahh</td><td>07528nqs.d</td></tr>
+<tr><td>2239</td><td>uCzvq22239</td><td>8zMJB2ci</td><td>07528nqs.d</td></tr>
+<tr><td>2241</td><td>uCzvq22241</td><td>t50sPrqf</td><td>07528nqs.d</td></tr>
+<tr><td>2245</td><td>uCzvq22245</td><td>yyjDKwa9</td><td>07528nqs.d</td></tr>
+<tr><td>2250</td><td>uCzvq22250</td><td>PWxo0ZQ0</td><td>07528nqs.d</td></tr>
+<tr><td>2251</td><td>uCzvq22251</td><td>G25lEOpO</td><td>07528nqs.d</td></tr>
+<tr><td>2255</td><td>uCzvq22255</td><td>jk1KfECl</td><td>07528nqs.d</td></tr>
+<tr><td>2257</td><td>uCzvq22257</td><td>lP2exsZQ</td><td>07528nqs.d</td></tr>
+<tr><td>2263</td><td>uCzvq22263</td><td>RvWBY6Qs</td><td>07528nqs.d</td></tr>
+<tr><td>2264</td><td>uCzvq22264</td><td>VGE2l43K</td><td>07528nqs.d</td></tr>
+<tr><td>2265</td><td>uCzvq22265</td><td>K5MjX64F</td><td>07528nqs.d</td></tr>
+<tr><td>2267</td><td>uCzvq22267</td><td>tKHwG3OL</td><td>07528nqs.d</td></tr>
+<tr><td>2268</td><td>uCzvq22268</td><td>7iIt12gI</td><td>07528nqs.d</td></tr>
+<tr><td>2269</td><td>uCzvq22269</td><td>qUZnIFZ5</td><td>07528nqs.d</td></tr>
+<tr><td>2270</td><td>uCzvq22270</td><td>14D01MD3</td><td>07528nqs.d</td></tr>
+<tr><td>2278</td><td>uCzvq22278</td><td>FIg9zknK</td><td>07528nqs.d</td></tr>
+<tr><td>2281</td><td>uCzvq22281</td><td>T6gxovql</td><td>07528nqs.d</td></tr>
+<tr><td>2283</td><td>uCzvq22283</td><td>hqB9UfhF</td><td>07528nqs.d</td></tr>
+<tr><td>2284</td><td>uCzvq22284</td><td>ffD1uvEr</td><td>07528nqs.d</td></tr>
+<tr><td>2287</td><td>uCzvq22287</td><td>AZq1AYc8</td><td>07528nqs.d</td></tr>
+<tr><td>2288</td><td>uCzvq22288</td><td>aLo2B1VV</td><td>07528nqs.d</td></tr>
+<tr><td>2289</td><td>uCzvq22289</td><td>xUOWby3k</td><td>07528nqs.d</td></tr>
+<tr><td>2290</td><td>uCzvq22290</td><td>9DNjkz8u</td><td>07528nqs.d</td></tr>
+<tr><td>2292</td><td>uCzvq22292</td><td>Yby2h4RF</td><td>07528nqs.d</td></tr>
+<tr><td>2293</td><td>uCzvq22293</td><td>ItY0L7sT</td><td>07528nqs.d</td></tr>
+<tr><td>2294</td><td>uCzvq22294</td><td>cnJaVe9K</td><td>07528nqs.d</td></tr>
+<tr><td>2301</td><td>uCzvq22301</td><td>F72Cef49</td><td>07528nqs.d</td></tr>
+<tr><td>2302</td><td>uCzvq22302</td><td>zcE1nwhH</td><td>07528nqs.d</td></tr>
+<tr><td>2303</td><td>uCzvq22303</td><td>e04ltObb</td><td>07528nqs.d</td></tr>
+<tr><td>2304</td><td>uCzvq22304</td><td>FA4YixlB</td><td>07528nqs.d</td></tr>
+<tr><td>2305</td><td>uCzvq22305</td><td>YDjaX5CW</td><td>07528nqs.d</td></tr>
+<tr><td>2306</td><td>uCzvq22306</td><td>NaZWx5FS</td><td>07528nqs.d</td></tr>
+<tr><td>2307</td><td>uCzvq22307</td><td>S1bp46lM</td><td>07528nqs.d</td></tr>
+<tr><td>2312</td><td>uCzvq22312</td><td>DZ85sz8K</td><td>07528nqs.d</td></tr>
+<tr><td>2315</td><td>uCzvq22315</td><td>5wJ4Pb6n</td><td>07528nqs.d</td></tr>
+<tr><td>2316</td><td>uCzvq22316</td><td>h8zNrf8O</td><td>07528nqs.d</td></tr>
+<tr><td>2318</td><td>uCzvq22318</td><td>nZdlmlX0</td><td>07528nqs.d</td></tr>
+<tr><td>2319</td><td>uCzvq22319</td><td>ChW2CPU6</td><td>07528nqs.d</td></tr>
+<tr><td>2320</td><td>uCzvq22320</td><td>mRfzj5I9</td><td>07528nqs.d</td></tr>
+<tr><td>2321</td><td>uCzvq22321</td><td>BERNjK9F</td><td>07528nqs.d</td></tr>
+<tr><td>2322</td><td>uCzvq22322</td><td>Eeffa8tK</td><td>07528nqs.d</td></tr>
+<tr><td>2323</td><td>uCzvq22323</td><td>M1mmDRfh</td><td>07528nqs.d</td></tr>
+<tr><td>2324</td><td>uCzvq22324</td><td>OBNmojX8</td><td>07528nqs.d</td></tr>
+<tr><td>2325</td><td>uCzvq22325</td><td>mtx3V6lP</td><td>07528nqs.d</td></tr>
+<tr><td>2326</td><td>uCzvq22326</td><td>EleF83zf</td><td>07528nqs.d</td></tr>
+<tr><td>4001</td><td>uCzvq24001</td><td>m6j1BRGM</td><td>07528nqs.d</td></tr>
+<tr><td>4002</td><td>uCzvq24002</td><td>pS55KNyd</td><td>07528nqs.d</td></tr>
+<tr><td>4003</td><td>uCzvq24003</td><td>R7j5nl0Y</td><td>07528nqs.d</td></tr>
+<tr><td>4004</td><td>uCzvq24004</td><td>2Aj3zRhu</td><td>07528nqs.d</td></tr>
+<tr><td>4005</td><td>uCzvq24005</td><td>0jhdWjXB</td><td>07528nqs.d</td></tr>
+<tr><td>5001</td><td>uCzvq25001</td><td>4fHMfnVY</td><td>07528nqs.d</td></tr>
+<tr><td>5002</td><td>uCzvq25002</td><td>ZTdJ0EM5</td><td>07528nqs.d</td></tr>
+<tr><td>5003</td><td>uCzvq25003</td><td>cN00BiwE</td><td>07528nqs.d</td></tr>
+<tr><td>9001</td><td>uCzvq29001</td><td>2wBgvNSR</td><td>07528nqs.d</td></tr>
+<tr><td>9002</td><td>uCzvq29002</td><td>0N05DOBi</td><td>07528nqs.d</td></tr>
+<tr><td>9003</td><td>uCzvq29003</td><td>cPAY5XhT</td><td>07528nqs.d</td></tr>
+<tr><td>9004</td><td>uCzvq29004</td><td>bXJEjTs1</td><td>07528nqs.d</td></tr>
+<tr><td>9005</td><td>uCzvq29005</td><td>ThQ5IzcQ</td><td>07528nqs.d</td></tr>
+<tr><td>9006</td><td>uCzvq29006</td><td>Ibh5ZTMn</td><td>07528nqs.d</td></tr>
+<tr><td>9007</td><td>uCzvq29007</td><td>tdXH6SRY</td><td>07528nqs.d</td></tr>
+<tr><td>9008</td><td>uCzvq29008</td><td>diIY4WDs</td><td>07528nqs.d</td></tr>
+<tr><td>9009</td><td>uCzvq29009</td><td>Oo4FMtb3</td><td>07528nqs.d</td></tr>
+<tr><td>9010</td><td>uCzvq29010</td><td>P4rYSjx2</td><td>07528nqs.d</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Sansan テーブル</h2>
+    <table id="sansanTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ユーザ名</th>
+                <th>パスワード</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Sansanアカウントリスト.csvのデータをここに埋め込む -->
+<tr><td>2035</td><td>035@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2036</td><td>036@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2142</td><td>142@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2143</td><td>143@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2144</td><td>144@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2146</td><td>146@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2149</td><td>149@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2150</td><td>150@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2151</td><td>151@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2156</td><td>156@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2158</td><td>158@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2163</td><td>163@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2164</td><td>164@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2165</td><td>165@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2167</td><td>167@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2169</td><td>169@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2170</td><td>170@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2171</td><td>171@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2172</td><td>172@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2173</td><td>173@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2174</td><td>174@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2176</td><td>176@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2177</td><td>177@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2178</td><td>178@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2179</td><td>179@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2181</td><td>181@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2182</td><td>182@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2183</td><td>183@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2184</td><td>184@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2185</td><td>185@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2187</td><td>187@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2188</td><td>188@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2189</td><td>sakaguchi-t@cgc-mie.or.jp</td><td>Mie2Mie5</td></tr>
+<tr><td>2192</td><td>192@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2195</td><td>195@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2196</td><td>196@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2197</td><td>197@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2204</td><td>204@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2207</td><td>nishii@cgc-mie.or.jp</td><td>Mie2Mie5</td></tr>
+<tr><td>2214</td><td>214@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2217</td><td>217@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2218</td><td>218@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2225</td><td>225@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2226</td><td>226@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2233</td><td>233@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2237</td><td>237@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2239</td><td>m.suwa@cgc-mie.or.jp</td><td>Mie2Mie5</td></tr>
+<tr><td>2250</td><td>250@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2251</td><td>251@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2255</td><td>255@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2257</td><td>257@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2263</td><td>263@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2264</td><td>264@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2265</td><td>265@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2268</td><td>268@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2269</td><td>269@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2270</td><td>270@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2281</td><td>281@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2283</td><td>283@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2284</td><td>284@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2287</td><td>287@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2288</td><td>288@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2289</td><td>289@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2292</td><td>292@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2293</td><td>293@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2294</td><td>294@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2301</td><td>301@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2302</td><td>302@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2303</td><td>303@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2304</td><td>304@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2305</td><td>305@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2306</td><td>306@mie.cgc</td><td>Mie2Mie5</td></tr>
+<tr><td>2307</td><td>307@mie.cgc</td><td>Mie2Mie5</td></tr>
+        </tbody>
+    </table>
+
+    <h2>SmartPBX 検索結果</h2>
+    <div id="smartPBXResults"></div>
+
+    <h2>Sansan 検索結果</h2>
+    <div id="sansanResults"></div>
 
     <script>
-        // LocalStorageのキー
-        const SMARTPBX_DATA_KEY = 'smartpbxTableData';
-        const SANSAN_DATA_KEY = 'sansanTableData';
+        const smartPBXData = [
+{ id: "3001", username: "uCzvq23001", password: "VPP9ipAp", code: "07528nqs.d" },
+{ id: "3002", username: "uCzvq23002", password: "lNmZ6aoK", code: "07528nqs.d" },
+{ id: "3003", username: "uCzvq23003", password: "DW2j2tcB", code: "07528nqs.d" },
+{ id: "3004", username: "uCzvq23004", password: "Xj2j1eaC", code: "07528nqs.d" },
+{ id: "3005", username: "uCzvq23005", password: "G8DvM5RM", code: "07528nqs.d" },
+{ id: "3006", username: "uCzvq23006", password: "kWwE6hw5", code: "07528nqs.d" },
+{ id: "3007", username: "uCzvq23007", password: "e0nOXxa2", code: "07528nqs.d" },
+{ id: "3008", username: "uCzvq23008", password: "585II7F8", code: "07528nqs.d" },
+{ id: "3009", username: "uCzvq23009", password: "vpBlKu4S", code: "07528nqs.d" },
+{ id: "3010", username: "uCzvq23010", password: "IODaN8nH", code: "07528nqs.d" },
+{ id: "3011", username: "uCzvq23011", password: "V8l1JU5v", code: "07528nqs.d" },
+{ id: "3012", username: "uCzvq23012", password: "il0et2tY", code: "07528nqs.d" },
+{ id: "3013", username: "uCzvq23013", password: "49FrJQ5s", code: "07528nqs.d" },
+{ id: "3014", username: "uCzvq23014", password: "1kqKj8Yz", code: "07528nqs.d" },
+{ id: "3015", username: "uCzvq23015", password: "nZ7H0Nr0", code: "07528nqs.d" },
+{ id: "3016", username: "uCzvq23016", password: "xoEg5Zy6", code: "07528nqs.d" },
+{ id: "3017", username: "uCzvq23017", password: "oOBwRO1X", code: "07528nqs.d" },
+{ id: "2035", username: "uCzvq22035", password: "am9Fglr1", code: "07528nqs.d" },
+{ id: "2036", username: "uCzvq22036", password: "2hkNpKKI", code: "07528nqs.d" },
+{ id: "2142", username: "uCzvq22142", password: "RvJ782yh", code: "07528nqs.d" },
+{ id: "2143", username: "uCzvq22143", password: "CAZ1I794", code: "07528nqs.d" },
+{ id: "2144", username: "uCzvq22144", password: "8VH1zvn7", code: "07528nqs.d" },
+{ id: "2146", username: "uCzvq22146", password: "E8EUr2uF", code: "07528nqs.d" },
+{ id: "2149", username: "uCzvq22149", password: "ifT3koAG", code: "07528nqs.d" },
+{ id: "2150", username: "uCzvq22150", password: "kahFc1Gm", code: "07528nqs.d" },
+{ id: "2151", username: "uCzvq22151", password: "U6S1ddYA", code: "07528nqs.d" },
+{ id: "2156", username: "uCzvq22156", password: "4MpJygVD", code: "07528nqs.d" },
+{ id: "2158", username: "uCzvq22158", password: "6enOe3EI", code: "07528nqs.d" },
+{ id: "2163", username: "uCzvq22163", password: "64RpxKGv", code: "07528nqs.d" },
+{ id: "2164", username: "uCzvq22164", password: "M8IRx2pT", code: "07528nqs.d" },
+{ id: "2165", username: "uCzvq22165", password: "8lwNZvxZ", code: "07528nqs.d" },
+{ id: "2167", username: "uCzvq22167", password: "1yRbzgkz", code: "07528nqs.d" },
+{ id: "2169", username: "uCzvq22169", password: "99hTZVtF", code: "07528nqs.d" },
+{ id: "2170", username: "uCzvq22170", password: "OgEJM9Wm", code: "07528nqs.d" },
+{ id: "2171", username: "uCzvq22171", password: "QnqPq8g3", code: "07528nqs.d" },
+{ id: "2172", username: "uCzvq22172", password: "vzKeOb5X", code: "07528nqs.d" },
+{ id: "2173", username: "uCzvq22173", password: "C8QI3iUw", code: "07528nqs.d" },
+{ id: "2174", username: "uCzvq22174", password: "feDx0gQD", code: "07528nqs.d" },
+{ id: "2176", username: "uCzvq22176", password: "4LblIrWU", code: "07528nqs.d" },
+{ id: "2177", username: "uCzvq22177", password: "NHCKIKA4", code: "07528nqs.d" },
+{ id: "2178", username: "uCzvq22178", password: "XPoDrB1b", code: "07528nqs.d" },
+{ id: "2179", username: "uCzvq22179", password: "JsY3AEp7", code: "07528nqs.d" },
+{ id: "2181", username: "uCzvq22181", password: "Q0fGM79x", code: "07528nqs.d" },
+{ id: "2182", username: "uCzvq22182", password: "cJ4ThIlm", code: "07528nqs.d" },
+{ id: "2183", username: "uCzvq22183", password: "mVu5BE8p", code: "07528nqs.d" },
+{ id: "2184", username: "uCzvq22184", password: "5x4nLZZp", code: "07528nqs.d" },
+{ id: "2185", username: "uCzvq22185", password: "j94ikSkg", code: "07528nqs.d" },
+{ id: "2187", username: "uCzvq22187", password: "53Yvepgo", code: "07528nqs.d" },
+{ id: "2188", username: "uCzvq22188", password: "GBSSuG8F", code: "07528nqs.d" },
+{ id: "2189", username: "uCzvq22189", password: "8RsynFjd", code: "07528nqs.d" },
+{ id: "2192", username: "uCzvq22192", password: "DkMjB8Xz", code: "07528nqs.d" },
+{ id: "2195", username: "uCzvq22195", password: "Bkt7ypx5", code: "07528nqs.d" },
+{ id: "2196", username: "uCzvq22196", password: "KqwK2m6W", code: "07528nqs.d" },
+{ id: "2197", username: "uCzvq22197", password: "DboT8TVS", code: "07528nqs.d" },
+{ id: "2204", username: "uCzvq22204", password: "4Wk0bK9L", code: "07528nqs.d" },
+{ id: "2207", username: "uCzvq22207", password: "CP0zFxje", code: "07528nqs.d" },
+{ id: "2214", username: "uCzvq22214", password: "C92NWAHq", code: "07528nqs.d" },
+{ id: "2217", username: "uCzvq22217", password: "xl9Xfd67", code: "07528nqs.d" },
+{ id: "2218", username: "uCzvq22218", password: "sevRO3AZ", code: "07528nqs.d" },
+{ id: "2221", username: "uCzvq22221", password: "hscTQhU1", code: "07528nqs.d" },
+{ id: "2222", username: "uCzvq22222", password: "p1zvJVPk", code: "07528nqs.d" },
+{ id: "2225", username: "uCzvq22225", password: "DiW4I7vE", code: "07528nqs.d" },
+{ id: "2226", username: "uCzvq22226", password: "EugYrz5h", code: "07528nqs.d" },
+{ id: "2233", username: "uCzvq22233", password: "28OiNWGM", code: "07528nqs.d" },
+{ id: "2237", username: "uCzvq22237", password: "7wxdGahh", code: "07528nqs.d" },
+{ id: "2239", username: "uCzvq22239", password: "8zMJB2ci", code: "07528nqs.d" },
+{ id: "2241", username: "uCzvq22241", password: "t50sPrqf", code: "07528nqs.d" },
+{ id: "2245", username: "uCzvq22245", password: "yyjDKwa9", code: "07528nqs.d" },
+{ id: "2250", username: "uCzvq22250", password: "PWxo0ZQ0", code: "07528nqs.d" },
+{ id: "2251", username: "uCzvq22251", password: "G25lEOpO", code: "07528nqs.d" },
+{ id: "2255", username: "uCzvq22255", password: "jk1KfECl", code: "07528nqs.d" },
+{ id: "2257", username: "uCzvq22257", password: "lP2exsZQ", code: "07528nqs.d" },
+{ id: "2263", username: "uCzvq22263", password: "RvWBY6Qs", code: "07528nqs.d" },
+{ id: "2264", username: "uCzvq22264", password: "VGE2l43K", code: "07528nqs.d" },
+{ id: "2265", username: "uCzvq22265", password: "K5MjX64F", code: "07528nqs.d" },
+{ id: "2267", username: "uCzvq22267", password: "tKHwG3OL", code: "07528nqs.d" },
+{ id: "2268", username: "uCzvq22268", password: "7iIt12gI", code: "07528nqs.d" },
+{ id: "2269", username: "uCzvq22269", password: "qUZnIFZ5", code: "07528nqs.d" },
+{ id: "2270", username: "uCzvq22270", password: "14D01MD3", code: "07528nqs.d" },
+{ id: "2278", username: "uCzvq22278", password: "FIg9zknK", code: "07528nqs.d" },
+{ id: "2281", username: "uCzvq22281", password: "T6gxovql", code: "07528nqs.d" },
+{ id: "2283", username: "uCzvq22283", password: "hqB9UfhF", code: "07528nqs.d" },
+{ id: "2284", username: "uCzvq22284", password: "ffD1uvEr", code: "07528nqs.d" },
+{ id: "2287", username: "uCzvq22287", password: "AZq1AYc8", code: "07528nqs.d" },
+{ id: "2288", username: "uCzvq22288", password: "aLo2B1VV", code: "07528nqs.d" },
+{ id: "2289", username: "uCzvq22289", password: "xUOWby3k", code: "07528nqs.d" },
+{ id: "2290", username: "uCzvq22290", password: "9DNjkz8u", code: "07528nqs.d" },
+{ id: "2292", username: "uCzvq22292", password: "Yby2h4RF", code: "07528nqs.d" },
+{ id: "2293", username: "uCzvq22293", password: "ItY0L7sT", code: "07528nqs.d" },
+{ id: "2294", username: "uCzvq22294", password: "cnJaVe9K", code: "07528nqs.d" },
+{ id: "2301", username: "uCzvq22301", password: "F72Cef49", code: "07528nqs.d" },
+{ id: "2302", username: "uCzvq22302", password: "zcE1nwhH", code: "07528nqs.d" },
+{ id: "2303", username: "uCzvq22303", password: "e04ltObb", code: "07528nqs.d" },
+{ id: "2304", username: "uCzvq22304", password: "FA4YixlB", code: "07528nqs.d" },
+{ id: "2305", username: "uCzvq22305", password: "YDjaX5CW", code: "07528nqs.d" },
+{ id: "2306", username: "uCzvq22306", password: "NaZWx5FS", code: "07528nqs.d" },
+{ id: "2307", username: "uCzvq22307", password: "S1bp46lM", code: "07528nqs.d" },
+{ id: "2312", username: "uCzvq22312", password: "DZ85sz8K", code: "07528nqs.d" },
+{ id: "2315", username: "uCzvq22315", password: "5wJ4Pb6n", code: "07528nqs.d" },
+{ id: "2316", username: "uCzvq22316", password: "h8zNrf8O", code: "07528nqs.d" },
+{ id: "2318", username: "uCzvq22318", password: "nZdlmlX0", code: "07528nqs.d" },
+{ id: "2319", username: "uCzvq22319", password: "ChW2CPU6", code: "07528nqs.d" },
+{ id: "2320", username: "uCzvq22320", password: "mRfzj5I9", code: "07528nqs.d" },
+{ id: "2321", username: "uCzvq22321", password: "BERNjK9F", code: "07528nqs.d" },
+{ id: "2322", username: "uCzvq22322", password: "Eeffa8tK", code: "07528nqs.d" },
+{ id: "2323", username: "uCzvq22323", password: "M1mmDRfh", code: "07528nqs.d" },
+{ id: "2324", username: "uCzvq22324", password: "OBNmojX8", code: "07528nqs.d" },
+{ id: "2325", username: "uCzvq22325", password: "mtx3V6lP", code: "07528nqs.d" },
+{ id: "2326", username: "uCzvq22326", password: "EleF83zf", code: "07528nqs.d" },
+{ id: "4001", username: "uCzvq24001", password: "m6j1BRGM", code: "07528nqs.d" },
+{ id: "4002", username: "uCzvq24002", password: "pS55KNyd", code: "07528nqs.d" },
+{ id: "4003", username: "uCzvq24003", password: "R7j5nl0Y", code: "07528nqs.d" },
+{ id: "4004", username: "uCzvq24004", password: "2Aj3zRhu", code: "07528nqs.d" },
+{ id: "4005", username: "uCzvq24005", password: "0jhdWjXB", code: "07528nqs.d" },
+{ id: "5001", username: "uCzvq25001", password: "4fHMfnVY", code: "07528nqs.d" },
+{ id: "5002", username: "uCzvq25002", password: "ZTdJ0EM5", code: "07528nqs.d" },
+{ id: "5003", username: "uCzvq25003", password: "cN00BiwE", code: "07528nqs.d" },
+{ id: "9001", username: "uCzvq29001", password: "2wBgvNSR", code: "07528nqs.d" },
+{ id: "9002", username: "uCzvq29002", password: "0N05DOBi", code: "07528nqs.d" },
+{ id: "9003", username: "uCzvq29003", password: "cPAY5XhT", code: "07528nqs.d" },
+{ id: "9004", username: "uCzvq29004", password: "bXJEjTs1", code: "07528nqs.d" },
+{ id: "9005", username: "uCzvq29005", password: "ThQ5IzcQ", code: "07528nqs.d" },
+{ id: "9006", username: "uCzvq29006", password: "Ibh5ZTMn", code: "07528nqs.d" },
+{ id: "9007", username: "uCzvq29007", password: "tdXH6SRY", code: "07528nqs.d" },
+{ id: "9008", username: "uCzvq29008", password: "diIY4WDs", code: "07528nqs.d" },
+{ id: "9009", username: "uCzvq29009", password: "Oo4FMtb3", code: "07528nqs.d" },
+{ id: "9010", username: "uCzvq29010", password: "P4rYSjx2", code: "07528nqs.d" },
+                    ];
 
-        // ページ読み込み時の処理
-        document.addEventListener('DOMContentLoaded', function() {
-            // URLからデータを読み込む（優先）
-            const urlData = getDataFromUrl();
-            if (urlData) {
-                if (urlData.smartpbx) {
-                    populateTable('smartpbx', urlData.smartpbx);
-                    saveTableDataToLocalStorage('smartpbx', urlData.smartpbx);
-                }
-                if (urlData.sansan) {
-                    populateTable('sansan', urlData.sansan);
-                    saveTableDataToLocalStorage('sansan', urlData.sansan);
-                }
-                
-                // 通知を表示
-                const notification = document.getElementById('notification');
-                notification.style.display = 'block';
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 5000);
-            } else {
-                // URLにデータがない場合はLocalStorageから読み込む
-                loadTableDataFromLocalStorage('smartpbx');
-                loadTableDataFromLocalStorage('sansan');
-            }
-            
-            // 検索ボックスにEnterキーイベントを追加
-            document.getElementById('searchBox').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchTables();
-                }
-            });
-        });
+        const sansanData = [
+{ id: "2035", username: "035@mie.cgc", password: "Mie2Mie5" },
+{ id: "2036", username: "036@mie.cgc", password: "Mie2Mie5" },
+{ id: "2142", username: "142@mie.cgc", password: "Mie2Mie5" },
+{ id: "2143", username: "143@mie.cgc", password: "Mie2Mie5" },
+{ id: "2144", username: "144@mie.cgc", password: "Mie2Mie5" },
+{ id: "2146", username: "146@mie.cgc", password: "Mie2Mie5" },
+{ id: "2149", username: "149@mie.cgc", password: "Mie2Mie5" },
+{ id: "2150", username: "150@mie.cgc", password: "Mie2Mie5" },
+{ id: "2151", username: "151@mie.cgc", password: "Mie2Mie5" },
+{ id: "2156", username: "156@mie.cgc", password: "Mie2Mie5" },
+{ id: "2158", username: "158@mie.cgc", password: "Mie2Mie5" },
+{ id: "2163", username: "163@mie.cgc", password: "Mie2Mie5" },
+{ id: "2164", username: "164@mie.cgc", password: "Mie2Mie5" },
+{ id: "2165", username: "165@mie.cgc", password: "Mie2Mie5" },
+{ id: "2167", username: "167@mie.cgc", password: "Mie2Mie5" },
+{ id: "2169", username: "169@mie.cgc", password: "Mie2Mie5" },
+{ id: "2170", username: "170@mie.cgc", password: "Mie2Mie5" },
+{ id: "2171", username: "171@mie.cgc", password: "Mie2Mie5" },
+{ id: "2172", username: "172@mie.cgc", password: "Mie2Mie5" },
+{ id: "2173", username: "173@mie.cgc", password: "Mie2Mie5" },
+{ id: "2174", username: "174@mie.cgc", password: "Mie2Mie5" },
+{ id: "2176", username: "176@mie.cgc", password: "Mie2Mie5" },
+{ id: "2177", username: "177@mie.cgc", password: "Mie2Mie5" },
+{ id: "2178", username: "178@mie.cgc", password: "Mie2Mie5" },
+{ id: "2179", username: "179@mie.cgc", password: "Mie2Mie5" },
+{ id: "2181", username: "181@mie.cgc", password: "Mie2Mie5" },
+{ id: "2182", username: "182@mie.cgc", password: "Mie2Mie5" },
+{ id: "2183", username: "183@mie.cgc", password: "Mie2Mie5" },
+{ id: "2184", username: "184@mie.cgc", password: "Mie2Mie5" },
+{ id: "2185", username: "185@mie.cgc", password: "Mie2Mie5" },
+{ id: "2187", username: "187@mie.cgc", password: "Mie2Mie5" },
+{ id: "2188", username: "188@mie.cgc", password: "Mie2Mie5" },
+{ id: "2189", username: "sakaguchi-t@cgc-mie.or.jp", password: "Mie2Mie5" },
+{ id: "2192", username: "192@mie.cgc", password: "Mie2Mie5" },
+{ id: "2195", username: "195@mie.cgc", password: "Mie2Mie5" },
+{ id: "2196", username: "196@mie.cgc", password: "Mie2Mie5" },
+{ id: "2197", username: "197@mie.cgc", password: "Mie2Mie5" },
+{ id: "2204", username: "204@mie.cgc", password: "Mie2Mie5" },
+{ id: "2207", username: "nishii@cgc-mie.or.jp", password: "Mie2Mie5" },
+{ id: "2214", username: "214@mie.cgc", password: "Mie2Mie5" },
+{ id: "2217", username: "217@mie.cgc", password: "Mie2Mie5" },
+{ id: "2218", username: "218@mie.cgc", password: "Mie2Mie5" },
+{ id: "2225", username: "225@mie.cgc", password: "Mie2Mie5" },
+{ id: "2226", username: "226@mie.cgc", password: "Mie2Mie5" },
+{ id: "2233", username: "233@mie.cgc", password: "Mie2Mie5" },
+{ id: "2237", username: "237@mie.cgc", password: "Mie2Mie5" },
+{ id: "2239", username: "m.suwa@cgc-mie.or.jp", password: "Mie2Mie5" },
+{ id: "2250", username: "250@mie.cgc", password: "Mie2Mie5" },
+{ id: "2251", username: "251@mie.cgc", password: "Mie2Mie5" },
+{ id: "2255", username: "255@mie.cgc", password: "Mie2Mie5" },
+{ id: "2257", username: "257@mie.cgc", password: "Mie2Mie5" },
+{ id: "2263", username: "263@mie.cgc", password: "Mie2Mie5" },
+{ id: "2264", username: "264@mie.cgc", password: "Mie2Mie5" },
+{ id: "2265", username: "265@mie.cgc", password: "Mie2Mie5" },
+{ id: "2268", username: "268@mie.cgc", password: "Mie2Mie5" },
+{ id: "2269", username: "269@mie.cgc", password: "Mie2Mie5" },
+{ id: "2270", username: "270@mie.cgc", password: "Mie2Mie5" },
+{ id: "2281", username: "281@mie.cgc", password: "Mie2Mie5" },
+{ id: "2283", username: "283@mie.cgc", password: "Mie2Mie5" },
+{ id: "2284", username: "284@mie.cgc", password: "Mie2Mie5" },
+{ id: "2287", username: "287@mie.cgc", password: "Mie2Mie5" },
+{ id: "2288", username: "288@mie.cgc", password: "Mie2Mie5" },
+{ id: "2289", username: "289@mie.cgc", password: "Mie2Mie5" },
+{ id: "2292", username: "292@mie.cgc", password: "Mie2Mie5" },
+{ id: "2293", username: "293@mie.cgc", password: "Mie2Mie5" },
+{ id: "2294", username: "294@mie.cgc", password: "Mie2Mie5" },
+{ id: "2301", username: "301@mie.cgc", password: "Mie2Mie5" },
+{ id: "2302", username: "302@mie.cgc", password: "Mie2Mie5" },
+{ id: "2303", username: "303@mie.cgc", password: "Mie2Mie5" },
+{ id: "2304", username: "304@mie.cgc", password: "Mie2Mie5" },
+{ id: "2305", username: "305@mie.cgc", password: "Mie2Mie5" },
+{ id: "2306", username: "306@mie.cgc", password: "Mie2Mie5" },
+{ id: "2307", username: "307@mie.cgc", password: "Mie2Mie5" },
+        ];
 
-        // URLからデータを取得
-        function getDataFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const dataParam = urlParams.get('data');
-            
-            if (!dataParam) return null;
-            
-            try {
-                // Base64デコードしてJSONに変換
-                const jsonData = atob(dataParam);
-                return JSON.parse(jsonData);
-            } catch (error) {
-                console.error('URLからのデータ読み込みに失敗しました:', error);
-                return null;
-            }
-        }
-
-        // 現在のデータをURLに埋め込む
-        function generateShareUrl() {
-            const data = {
-                smartpbx: JSON.parse(localStorage.getItem(SMARTPBX_DATA_KEY)) || [],
-                sansan: JSON.parse(localStorage.getItem(SANSAN_DATA_KEY)) || []
-            };
-            
-            // JSONをBase64にエンコード
-            const jsonData = JSON.stringify(data);
-            const base64Data = btoa(jsonData);
-            
-            // URLを生成
-            const url = new URL(window.location.href);
-            url.search = '';  // クエリパラメータをクリア
-            url.searchParams.set('data', base64Data);
-            
-            return url.toString();
-        }
-
-        // 共有モーダルを開く
-        function openShareModal() {
-            const modal = document.getElementById('shareModal');
-            const shareUrl = document.getElementById('shareUrl');
-            
-            shareUrl.textContent = generateShareUrl();
-            modal.style.display = 'block';
-        }
-
-        // 共有モーダルを閉じる
-        function closeShareModal() {
-            const modal = document.getElementById('shareModal');
-            modal.style.display = 'none';
-        }
-
-        // 共有URLをコピー
-        function copyShareUrl() {
-            const shareUrl = document.getElementById('shareUrl');
-            const text = shareUrl.textContent;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                const successElement = document.getElementById('urlCopySuccess');
-                successElement.style.display = 'block';
-                
-                setTimeout(() => {
-                    successElement.style.display = 'none';
-                }, 2000);
-            }).catch(err => {
-                console.error('URLのコピーに失敗しました:', err);
-                alert('URLのコピーに失敗しました。');
-            });
-        }
-
-        // テーブルデータをLocalStorageに保存
-        function saveTableDataToLocalStorage(tableType, data) {
-            const key = tableType === 'smartpbx' ? SMARTPBX_DATA_KEY : SANSAN_DATA_KEY;
-            localStorage.setItem(key, JSON.stringify(data));
-        }
-
-        // LocalStorageからテーブルデータを読み込む
-        function loadTableDataFromLocalStorage(tableType) {
-            const key = tableType === 'smartpbx' ? SMARTPBX_DATA_KEY : SANSAN_DATA_KEY;
-            const data = JSON.parse(localStorage.getItem(key));
-            if (data) {
-                populateTable(tableType, data);
-            }
-        }
-
-        // テーブルにデータを挿入
-        function populateTable(tableType, data) {
-            const tableBody = document.getElementById(`${tableType}TableBody`);
-            tableBody.innerHTML = '';
-
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-
-                row.forEach(cell => {
-                    const td = document.createElement('td');
-                    td.textContent = cell;
-                    tr.appendChild(td);
-                });
-
-                tableBody.appendChild(tr);
-            });
-        }
-
-        // テーブルをクリア
-        function clearTables() {
-            document.getElementById('smartpbxTableBody').innerHTML = '';
-            document.getElementById('sansanTableBody').innerHTML = '';
-
-            // LocalStorageから削除
-            localStorage.removeItem(SMARTPBX_DATA_KEY);
-            localStorage.removeItem(SANSAN_DATA_KEY);
-
-            // 検索結果をクリア
-            document.getElementById('smartpbxResultContainer').style.display = 'none';
-            document.getElementById('sansanResultContainer').style.display = 'none';
-            document.getElementById('noResults').style.display = 'none';
-            document.getElementById('searchBox').value = '';
-            
-            // URLからクエリパラメータを削除
-            const url = new URL(window.location.href);
-            url.search = '';
-            window.history.replaceState({}, document.title, url.toString());
-        }
-
-        // CSVファイルを読み込む
-        function loadCsv(tableType) {
-            const fileInput = document.getElementById(`${tableType}CsvInput`);
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert('ファイルが選択されていません');
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const contents = e.target.result;
-                const data = parseCsvData(contents);
-
-                if (data.length > 0) {
-                    populateTable(tableType, data);
-                    saveTableDataToLocalStorage(tableType, data);
-                    alert(`${tableType === 'smartpbx' ? 'SmartPBX' : 'Sansan'} テーブルにデータを読み込みました`);
-                } else {
-                    alert('CSVデータの読み込みに失敗しました');
-                }
-            };
-
-            // UTF-8でCSVを読み込み、文字化けを防止
-            reader.readAsText(file, 'UTF-8');
-        }
-
-        // CSVデータをパース
-        function parseCsvData(csvText) {
-            const lines = csvText.split(/\r\n|\n/);
-            const data = [];
-
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].trim() === '') continue;
-
-                const values = lines[i].split(',');
-
-                if (values.length >= 4) {
-                    data.push([
-                        values[0].trim(),
-                        values[1].trim(),
-                        values[2].trim(),
-                        values[3].trim()
-                    ]);
-                }
-            }
-
-            return data;
-        }
-
-        // テーブルを検索し、結果を表示
         function searchTables() {
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            const noResults = document.getElementById('noResults');
+            const searchValue = document.getElementById("searchBox").value;
+            const smartPBXResults = document.getElementById("smartPBXResults");
+            const sansanResults = document.getElementById("sansanResults");
 
-            if (searchTerm === '') {
-                document.getElementById('smartpbxResultContainer').style.display = 'none';
-                document.getElementById('sansanResultContainer').style.display = 'none';
-                noResults.style.display = 'none';
-                return;
+            smartPBXResults.innerHTML = "";
+            sansanResults.innerHTML = "";
+
+            const smartPBXMatch = smartPBXData.find(row => row.id === searchValue);
+            const sansanMatch = sansanData.find(row => row.id === searchValue);
+
+            if (smartPBXMatch) {
+                smartPBXResults.innerHTML = `
+                    <p>ID: ${smartPBXMatch.id}</p>
+                    <p>ユーザ名: ${smartPBXMatch.username} <span class="copy-button" onclick="copyToClipboard('${smartPBXMatch.username}')">コピー</span></p>
+                    <p>パスワード: ${smartPBXMatch.password} <span class="copy-button" onclick="copyToClipboard('${smartPBXMatch.password}')">コピー</span></p>
+                    <p>コード: ${smartPBXMatch.code} <span class="copy-button" onclick="copyToClipboard('${smartPBXMatch.code}')">コピー</span></p>
+                `;
             }
 
-            // SmartPBXテーブルを検索
-            const smartpbxFound = searchTable('smartpbx', searchTerm);
-
-            // Sansanテーブルを検索
-            const sansanFound = searchTable('sansan', searchTerm);
-
-            // 検索結果の表示切り替え
-            if (!smartpbxFound && !sansanFound) {
-                document.getElementById('smartpbxResultContainer').style.display = 'none';
-                document.getElementById('sansanResultContainer').style.display = 'none';
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
-            }
-        }
-
-        // 特定のテーブルを検索
-        function searchTable(tableType, searchTerm) {
-            const tableBody = document.getElementById(`${tableType}TableBody`);
-            const rows = tableBody.getElementsByTagName('tr');
-            const resultContainer = document.getElementById(`${tableType}ResultContainer`);
-
-            // 以前のハイライトをリセット
-            for (let i = 0; i < rows.length; i++) {
-                rows[i].classList.remove('highlighted');
-            }
-
-            for (let i = 0; i < rows.length; i++) {
-                const firstCell = rows[i].getElementsByTagName('td')[0];
-
-                if (firstCell && firstCell.textContent.includes(searchTerm)) {
-                    // マッチした行を強調表示
-                    rows[i].classList.add('highlighted');
-
-                    // スクロールしてマッチした行を表示
-                    rows[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    // 結果をコピーボタンにセット
-                    const cells = rows[i].getElementsByTagName('td');
-                    document.getElementById(`${tableType}Username`).textContent = cells[1].textContent;
-                    document.getElementById(`${tableType}Password`).textContent = cells[2].textContent;
-                    document.getElementById(`${tableType}Code`).textContent = cells[3].textContent;
-
-                    resultContainer.style.display = 'block';
-                    return true;
-                }
-            }
-
-            resultContainer.style.display = 'none';
-            return false;
-        }
-
-        // テキストをクリップボードにコピー
-        function copyText(elementId) {
-            const text = document.getElementById(elementId).textContent;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                // モダンなClipboard API（より信頼性が高い）
-                navigator.clipboard.writeText(text)
-                    .then(() => {
-                        showCopySuccess(elementId);
-                    })
-                    .catch(err => {
-                        console.error('コピーに失敗しました:', err);
-                        fallbackCopy(text, elementId);
-                    });
-            } else {
-                // フォールバックメソッド
-                fallbackCopy(text, elementId);
+            if (sansanMatch) {
+                sansanResults.innerHTML = `
+                    <p>ID: ${sansanMatch.id}</p>
+                    <p>ユーザ名: ${sansanMatch.username} <span class="copy-button" onclick="copyToClipboard('${sansanMatch.username}')">コピー</span></p>
+                    <p>パスワード: ${sansanMatch.password} <span class="copy-button" onclick="copyToClipboard('${sansanMatch.password}')">コピー</span></p>
+                `;
             }
         }
-        
-        // フォールバックのコピーメソッド
-        function fallbackCopy(text, elementId) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
 
-            textArea.select();
-
-            try {
-                document.execCommand('copy');
-                showCopySuccess(elementId);
-            } catch (err) {
-                console.error('コピーに失敗しました:', err);
-                alert('コピーに失敗しました。');
-            }
-
-            document.body.removeChild(textArea);
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("コピーしました: " + text);
+            });
         }
-        
-        // コピー成功メッセージを表示
-        function showCopySuccess(elementId) {
-            const successElement = document.getElementById(`${elementId}Success`);
-            successElement.style.display = 'block';
-            
-            setTimeout(() => {
-                successElement.style.display = 'none';
-            }, 2000);
-        }
-        
-        // モーダル外クリックで閉じる
-        window.onclick = function(event) {
-            const modal = document.getElementById('shareModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        };
     </script>
 </body>
 </html>
