@@ -70,6 +70,7 @@
         </div>
 
         <h2>SmartPBX テーブル</h2>
+        <input type="file" id="smartpbxFile" accept=".csv" onchange="loadCSV(event, 'smartpbxTable')">
         <table id="smartpbxTable">
             <thead>
                 <tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr>
@@ -78,6 +79,7 @@
         </table>
 
         <h2>Sansan テーブル</h2>
+        <input type="file" id="sansanFile" accept=".csv" onchange="loadCSV(event, 'sansanTable')">
         <table id="sansanTable">
             <thead>
                 <tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr>
@@ -111,6 +113,41 @@
         function clearTables() {
             document.getElementById("searchBox").value = "";
             document.querySelectorAll("tbody tr").forEach(row => row.classList.remove("highlighted"));
+        }
+
+        function loadCSV(event, tableId) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const tableData = parseCSV(content);
+                populateTable(tableId, tableData);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split("\n").map(line => line.trim());
+            return lines
+                .filter(line => line.length > 0)
+                .map(line => line.split(","));
+        }
+
+        function populateTable(tableId, data) {
+            const tableBody = document.querySelector(`#${tableId} tbody`);
+            tableBody.innerHTML = "";
+
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
         }
     </script>
 </body>
