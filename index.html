@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="Shift_JIS">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>検索機能付き二重テーブルとコピーボタン</title>
     <style>
@@ -301,25 +301,25 @@
         // ページ読み込み時の処理
         document.addEventListener('DOMContentLoaded', function() {
             // LocalStorageからデータを取得
-            loadCsvDataFromLocalStorage('smartpbx');
-            loadCsvDataFromLocalStorage('sansan');
-        });
-
-        // Enterキーで検索
-        document.getElementById('searchBox').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchTables();
-            }
+            loadTableDataFromLocalStorage('smartpbx');
+            loadTableDataFromLocalStorage('sansan');
+            
+            // 検索ボックスにEnterキーイベントを追加
+            document.getElementById('searchBox').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchTables();
+                }
+            });
         });
 
         // テーブルデータをLocalStorageに保存
-        function saveCsvDataToLocalStorage(tableType, data) {
+        function saveTableDataToLocalStorage(tableType, data) {
             const key = tableType === 'smartpbx' ? SMARTPBX_DATA_KEY : SANSAN_DATA_KEY;
             localStorage.setItem(key, JSON.stringify(data));
         }
 
         // LocalStorageからテーブルデータを読み込む
-        function loadCsvDataFromLocalStorage(tableType) {
+        function loadTableDataFromLocalStorage(tableType) {
             const key = tableType === 'smartpbx' ? SMARTPBX_DATA_KEY : SANSAN_DATA_KEY;
             const data = JSON.parse(localStorage.getItem(key));
             if (data) {
@@ -379,14 +379,15 @@
 
                 if (data.length > 0) {
                     populateTable(tableType, data);
-                    saveCsvDataToLocalStorage(tableType, data);
+                    saveTableDataToLocalStorage(tableType, data);
                     alert(`${tableType === 'smartpbx' ? 'SmartPBX' : 'Sansan'} テーブルにデータを読み込みました`);
                 } else {
                     alert('CSVデータの読み込みに失敗しました');
                 }
             };
 
-            reader.readAsText(file);
+            // UTF-8でCSVを読み込み、文字化けを防止
+            reader.readAsText(file, 'UTF-8');
         }
 
         // CSVデータをパース
@@ -492,7 +493,7 @@
                 document.execCommand('copy');
 
                 // 成功メッセージを表示
-               elementId}Success`);
+                const successElement = document.getElementById(`${elementId}Success`);
                 successElement.style.display = 'block';
 
                 // 2秒後にメッセージを非表示
