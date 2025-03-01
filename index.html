@@ -7,20 +7,24 @@
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
+        
         .container {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .search-container {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin-bottom: 20px;
         }
+
         .search-box {
             padding: 8px 12px;
             font-size: 16px;
@@ -29,105 +33,280 @@
             flex-grow: 1;
             max-width: 300px;
         }
+
         .btn {
-            background-color: #4285F4;
-            color: white;
-            border: none;
             padding: 8px 16px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 4px;
+            border: none;
+            color: white;
         }
+
+        .search-btn {
+            background-color: #4285F4;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+        }
+
+        .results-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
         .result-container {
-            display: none;
+            flex: 1;
+            min-width: 300px;
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
+            display: none;
         }
+
+        .copy-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .copy-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .copy-item-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 5px;
+            align-self: flex-start;
+        }
+
+        .tables-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
+
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+
         .highlighted {
             background-color: #ffffc0 !important;
+        }
+
+        .no-results {
+            color: #d9534f;
+            font-style: italic;
+            display: none;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>SmartPBX & Sansan 設定</h1>
-        <div class="search-container">
-            <input type="text" id="searchBox" class="search-box" placeholder="IDを入力して検索...">
-            <button class="btn" onclick="searchTables()">検索</button>
-            <button class="btn" onclick="clearTables()">クリア</button>
+
+        <div>
+            <div style="margin-bottom: 10px;">
+                <label for="smartpbxFile">SmartPBX CSVファイルを選択: </label>
+                <input type="file" id="smartpbxFile" accept=".csv" onchange="loadCSV(event, 'smartpbx')">
+            </div>
+            <div>
+                <label for="sansanFile">Sansan CSVファイルを選択: </label>
+                <input type="file" id="sansanFile" accept=".csv" onchange="loadCSV(event, 'sansan')">
+            </div>
         </div>
 
-        <h2>SmartPBX テーブル</h2>
-        <input type="file" id="smartpbxFile" accept=".csv" onchange="loadCSV(event, 'smartpbxTable')">
-        <table id="smartpbxTable">
-            <thead>
-                <tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="search-container">
+            <input type="text" id="searchBox" class="search-box" placeholder="IDを入力して検索...">
+            <button class="btn search-btn" onclick="searchTables()">検索</button>
+            <button class="btn clear-btn" onclick="clearTables()">クリア</button>
+        </div>
 
-        <h2>Sansan テーブル</h2>
-        <input type="file" id="sansanFile" accept=".csv" onchange="loadCSV(event, 'sansanTable')">
-        <table id="sansanTable">
-            <thead>
-                <tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="no-results" id="noResults">検索結果が見つかりませんでした。</div>
+
+        <div class="results-section">
+            <div class="result-container" id="smartpbxResultContainer">
+                <h2>SmartPBX 検索結果</h2>
+                <div class="copy-btn-group">
+                    <div class="copy-item">
+                        <div class="copy-item-label">ID</div>
+                        <div class="copy-text" id="smartpbxId"></div>
+                        <button class="copy-btn" onclick="copyText('smartpbxId')">コピー</button>
+                    </div>
+                    <div class="copy-item">
+                        <div class="copy-item-label">ユーザ名</div>
+                        <div class="copy-text" id="smartpbxUser"></div>
+                        <button class="copy-btn" onclick="copyText('smartpbxUser')">コピー</button>
+                    </div>
+                    <div class="copy-item">
+                        <div class="copy-item-label">パスワード</div>
+                        <div class="copy-text" id="smartpbxPassword"></div>
+                        <button class="copy-btn" onclick="copyText('smartpbxPassword')">コピー</button>
+                    </div>
+                    <div class="copy-item">
+                        <div class="copy-item-label">コード</div>
+                        <div class="copy-text" id="smartpbxCode"></div>
+                        <button class="copy-btn" onclick="copyText('smartpbxCode')">コピー</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-container" id="sansanResultContainer">
+                <h2>Sansan 検索結果</h2>
+                <div class="copy-btn-group">
+                    <div class="copy-item">
+                        <div class="copy-item-label">ID</div>
+                        <div class="copy-text" id="sansanId"></div>
+                        <button class="copy-btn" onclick="copyText('sansanId')">コピー</button>
+                    </div>
+                    <div class="copy-item">
+                        <div class="copy-item-label">ユーザ名</div>
+                        <div class="copy-text" id="sansanUser"></div>
+                        <button class="copy-btn" onclick="copyText('sansanUser')">コピー</button>
+                    </div>
+                    <div class="copy-item">
+                        <div class="copy-item-label">パスワード</div>
+                        <div class="copy-text" id="sansanPassword"></div>
+                        <button class="copy-btn" onclick="copyText('sansanPassword')">コピー</button>
+                    </div>
+                    <div class="copy-item">
+                        <div class="copy-item-label">コード</div>
+                        <div class="copy-text" id="sansanCode"></div>
+                        <button class="copy-btn" onclick="copyText('sansanCode')">コピー</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-section">
+            <div class="table-wrapper">
+                <h2>SmartPBX テーブル</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ユーザ名</th>
+                                <th>パスワード</th>
+                                <th>コード</th>
+                            </tr>
+                        </thead>
+                        <tbody id="smartpbxTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <h2>Sansan テーブル</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ユーザ名</th>
+                                <th>パスワード</th>
+                                <th>コード</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sansanTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        function searchTables() {
-            const searchTerm = document.getElementById("searchBox").value.trim();
-            if (!searchTerm) return;
+        // Data storage
+        let smartpbxData = [];
+        let sansanData = [];
 
-            highlightMatches("smartpbxTable", searchTerm);
-            highlightMatches("sansanTable", searchTerm);
-        }
+        // localStorage keys
+        const SMARTPBX_DATA_KEY = 'smartpbxTableData';
+        const SANSAN_DATA_KEY = 'sansanTableData';
 
-        function highlightMatches(tableId, searchTerm) {
-            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-            rows.forEach(row => row.classList.remove("highlighted"));
-
-            for (const row of rows) {
-                const cell = row.cells[0];
-                if (cell && cell.textContent.includes(searchTerm)) {
-                    row.classList.add("highlighted");
-                    row.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
+        // Load data from localStorage on page load
+        window.onload = function() {
+            // Load SmartPBX data
+            const savedSmartpbxData = localStorage.getItem(SMARTPBX_DATA_KEY);
+            if (savedSmartpbxData) {
+                smartpbxData = JSON.parse(savedSmartpbxData);
+                populateTable(smartpbxData, 'smartpbx');
             }
-        }
 
-        function clearTables() {
-            document.getElementById("searchBox").value = "";
-            document.querySelectorAll("tbody tr").forEach(row => row.classList.remove("highlighted"));
-        }
+            // Load Sansan data
+            const savedSansanData = localStorage.getItem(SANSAN_DATA_KEY);
+            if (savedSansanData) {
+                sansanData = JSON.parse(savedSansanData);
+                populateTable(sansanData, 'sansan');
+            }
+        };
 
-        function loadCSV(event, tableId) {
+        // Load CSV file
+        function loadCSV(event, tableType) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
-                const tableData = parseCSV(content);
-                populateTable(tableId, tableData);
+                const parsedData = parseCSV(content);
+                
+                if (tableType === 'smartpbx') {
+                    smartpbxData = parsedData;
+                    localStorage.setItem(SMARTPBX_DATA_KEY, JSON.stringify(smartpbxData));
+                } else if (tableType === 'sansan') {
+                    sansanData = parsedData;
+                    localStorage.setItem(SANSAN_DATA_KEY, JSON.stringify(sansanData));
+                }
+                
+                populateTable(parsedData, tableType);
             };
             reader.readAsText(file);
         }
 
+        // Parse CSV content
         function parseCSV(csvText) {
             const lines = csvText.split("\n").map(line => line.trim());
             return lines
@@ -135,8 +314,10 @@
                 .map(line => line.split(","));
         }
 
-        function populateTable(tableId, data) {
-            const tableBody = document.querySelector(`#${tableId} tbody`);
+        // Populate table with data
+        function populateTable(data, tableType) {
+            const tableBodyId = tableType === 'smartpbx' ? 'smartpbxTableBody' : 'sansanTableBody';
+            const tableBody = document.getElementById(tableBodyId);
             tableBody.innerHTML = "";
 
             data.forEach(row => {
@@ -148,6 +329,96 @@
                 });
                 tableBody.appendChild(tr);
             });
+        }
+
+        // Search in both tables
+        function searchTables() {
+            const searchTerm = document.getElementById("searchBox").value.trim();
+            if (!searchTerm) {
+                hideAllResults();
+                return;
+            }
+
+            let smartpbxFound = searchTable('smartpbx', searchTerm);
+            let sansanFound = searchTable('sansan', searchTerm);
+
+            // Show no results message if nothing found in both tables
+            document.getElementById("noResults").style.display = (!smartpbxFound && !sansanFound) ? "block" : "none";
+        }
+
+        // Search in specific table
+        function searchTable(tableType, searchTerm) {
+            const tableBodyId = tableType === 'smartpbx' ? 'smartpbxTableBody' : 'sansanTableBody';
+            const resultContainerId = tableType === 'smartpbx' ? 'smartpbxResultContainer' : 'sansanResultContainer';
+            
+            const rows = document.querySelectorAll(`#${tableBodyId} tr`);
+            let found = false;
+
+            // Remove highlighting from all rows
+            rows.forEach(row => row.classList.remove("highlighted"));
+
+            for (const row of rows) {
+                const cells = row.getElementsByTagName("td");
+                if (cells.length > 0 && cells[0].textContent.includes(searchTerm)) {
+                    // Highlight the found row
+                    row.classList.add("highlighted");
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                    // Update result fields
+                    document.getElementById(`${tableType}Id`).textContent = cells[0].textContent;
+                    document.getElementById(`${tableType}User`).textContent = cells[1].textContent;
+                    document.getElementById(`${tableType}Password`).textContent = cells[2].textContent;
+                    document.getElementById(`${tableType}Code`).textContent = cells[3].textContent;
+
+                    // Show result container
+                    document.getElementById(resultContainerId).style.display = "block";
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                document.getElementById(resultContainerId).style.display = "none";
+            }
+
+            return found;
+        }
+
+        // Clear both tables
+        function clearTables() {
+            // Clear SmartPBX table
+            document.getElementById("smartpbxTableBody").innerHTML = "";
+            smartpbxData = [];
+            localStorage.removeItem(SMARTPBX_DATA_KEY);
+
+            // Clear Sansan table
+            document.getElementById("sansanTableBody").innerHTML = "";
+            sansanData = [];
+            localStorage.removeItem(SANSAN_DATA_KEY);
+
+            // Clear search and results
+            document.getElementById("searchBox").value = "";
+            hideAllResults();
+        }
+
+        // Hide all result containers
+        function hideAllResults() {
+            document.getElementById("smartpbxResultContainer").style.display = "none";
+            document.getElementById("sansanResultContainer").style.display = "none";
+            document.getElementById("noResults").style.display = "none";
+        }
+
+        // Copy text to clipboard
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert("コピーしました！");
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert("コピーに失敗しました。");
+                });
         }
     </script>
 </body>
