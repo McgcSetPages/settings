@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansan 設定</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+            max-width: 300px;
+        }
+
+        .search-btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .result-container {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .copy-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .copy-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 200px;
+        }
+
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+
+        .highlighted {
+            background-color: #ffffc0 !important;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
+        .no-results {
+            color: #d9534f;
+            font-style: italic;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>検索機能付きテーブルとコピーボタン</h1>
+
+        <div>
+            <label for="csvFile">CSVファイルを選択: </label>
+            <input type="file" id="csvFile" accept=".csv" onchange="loadCSV(event)">
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchBox" class="search-box" placeholder="IDを入力して検索...">
+            <button class="search-btn" onclick="searchTable()">検索</button>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <h2>検索結果</h2>
+            <div class="copy-btn-group">
+                <div class="copy-item">
+                    <div>ユーザID</div>
+                    <div class="copy-text" id="userId"></div>
+                    <button class="copy-btn" onclick="copyText('userId')">コピー</button>
+                </div>
+
+                <div class="copy-item">
+                    <div>パスワード</div>
+                    <div class="copy-text" id="password"></div>
+                    <button class="copy-btn" onclick="copyText('password')">コピー</button>
+                </div>
+
+                <div class="copy-item">
+                    <div>コード</div>
+                    <div class="copy-text" id="code"></div>
+                    <button class="copy-btn" onclick="copyText('code')">コピー</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results" id="noResults">検索結果が見つかりませんでした。</div>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ユーザID</th>
+                        <th>パスワード</th>
+                        <th>コード</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let tableData = [];
+
+        function loadCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                tableData = parseCSV(content);
+                populateTable(tableData);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split("\n").map(line => line.trim());
+            return lines
+                .filter(line => line.length > 0)
+                .map(line => line.split(","));
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function searchTable() {
+            const searchTerm = document.getElementById("searchBox").value.trim();
+            const rows = document.querySelectorAll("#tableBody tr");
+            let found = false;
+
+            rows.forEach(row => row.classList.remove("highlighted"));
+
+            if (!searchTerm) return;
+
+            for (const row of rows) {
+                const cells = row.getElementsByTagName("td");
+                if (cells[0] && cells[0].textContent.includes(searchTerm)) {
+                    row.classList.add("highlighted");
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                    document.getElementById("userId").textContent = cells[1].textContent;
+                    document.getElementById("password").textContent = cells[2].textContent;
+                    document.getElementById("code").textContent = cells[3].textContent;
+
+                    document.getElementById("resultContainer").style.display = "block";
+                    document.getElementById("noResults").style.display = "none";
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                document.getElementById("resultContainer").style.display = "none";
+                document.getElementById("noResults").style.display = "block";
+            }
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => alert("コピーしました！"));
+        }
+    </script>
+</body>
+</html>
