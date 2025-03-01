@@ -614,87 +614,102 @@
             });
         }
 
-        // 指定した行にスクロールしてハイライト
-        function scrollToAndHighlight(tableId, rowId) {
-            clearHighlights(); // 以前のハイライトをクリア
-            
-            const tableContainer = document.getElementById(tableId + 'Container');
-            const row = document.getElementById(rowId);
-            
-            if (row && tableContainer) {
-                // 行をハイライト
-                row.classList.add('highlighted');
-                
-                // ハイライトした行が見えるようにスクロール
-                const rowTop = row.offsetTop;
-                const containerHeight = tableContainer.clientHeight;
-                const rowHeight = row.clientHeight;
-                
-                // 行が表示領域の中央に来るようにスクロール
-                const scrollTarget = rowTop - (containerHeight / 2) + (rowHeight / 2);
-                tableContainer.scrollTop = scrollTarget;
+// 指定した行にスクロールしてハイライト
+function scrollToAndHighlight(tableId, searchId) {
+    clearHighlights(); // 以前のハイライトをクリア
+    
+    const tableContainer = document.getElementById(tableId + 'Container');
+    // まずID属性で検索
+    let row = document.getElementById('spbx-' + searchId) || document.getElementById('ss-' + searchId);
+    
+    // ID属性で見つからない場合は、テーブル内の最初のセルの値で検索
+    if (!row) {
+        const table = document.getElementById(tableId);
+        const rows = table.querySelectorAll('tbody tr');
+        for (let i = 0; i < rows.length; i++) {
+            const firstCell = rows[i].querySelector('td:first-child');
+            if (firstCell && firstCell.textContent === searchId) {
+                row = rows[i];
+                break;
             }
         }
-
-        function searchTables() {
-            const searchValue = document.getElementById("searchBox").value;
-            const smartPBXResults = document.getElementById("smartPBXResults");
-            const sansanResults = document.getElementById("sansanResults");
-
-            smartPBXResults.innerHTML = "";
-            sansanResults.innerHTML = "";
+    }
+    
+    if (row && tableContainer) {
+        // 行をハイライト
+        row.classList.add('highlighted');
+        
+        // ハイライトした行が見えるようにスクロール
+        setTimeout(() => {
+            const rowTop = row.offsetTop;
+            const containerHeight = tableContainer.clientHeight;
+            const rowHeight = row.clientHeight;
             
-            clearHighlights(); // 検索前にハイライトをクリア
+            // 行が表示領域の中央に来るようにスクロール
+            const scrollTarget = rowTop - (containerHeight / 2) + (rowHeight / 2);
+            tableContainer.scrollTop = scrollTarget;
+        }, 100); // 少し遅延を追加して確実にDOMが更新された後に実行
+    }
+}
+function searchTables() {
+    const searchValue = document.getElementById("searchBox").value;
+    const smartPBXResults = document.getElementById("smartPBXResults");
+    const sansanResults = document.getElementById("sansanResults");
 
-            const smartPBXMatch = smartPBXData.find(row => row.id === searchValue);
-            const sansanMatch = sansanData.find(row => row.id === searchValue);
+    smartPBXResults.innerHTML = "";
+    sansanResults.innerHTML = "";
+    
+    clearHighlights(); // 検索前にハイライトをクリア
 
-            if (smartPBXMatch) {
-                smartPBXResults.innerHTML = `
-                    <p>
-                        <span><span class="label">ID:</span> <span class="value">${smartPBXMatch.id}</span></span>
-                    </p>
-                    <p>
-                        <span><span class="label">ユーザ名:</span> <span class="value">${smartPBXMatch.username}</span></span>
-                        <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.username}')">コピー</button>
-                    </p>
-                    <p>
-                        <span><span class="label">パスワード:</span> <span class="value">${smartPBXMatch.password}</span></span>
-                        <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.password}')">コピー</button>
-                    </p>
-                    <p>
-                        <span><span class="label">コード:</span> <span class="value">${smartPBXMatch.code}</span></span>
-                        <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.code}')">コピー</button>
-                    </p>
-                `;
-                
-                // SmartPBXテーブルで対応する行をハイライト
-                scrollToAndHighlight('smartPBXTable', 'spbx-' + smartPBXMatch.id);
-            } else {
-                smartPBXResults.innerHTML = `<p class="message">該当するSmartPBXデータが見つかりませんでした</p>`;
-            }
+    const smartPBXMatch = smartPBXData.find(row => row.id === searchValue);
+    const sansanMatch = sansanData.find(row => row.id === searchValue);
 
-            if (sansanMatch) {
-                sansanResults.innerHTML = `
-                    <p>
-                        <span><span class="label">ID:</span> <span class="value">${sansanMatch.id}</span></span>
-                    </p>
-                    <p>
-                        <span><span class="label">ユーザ名:</span> <span class="value">${sansanMatch.username}</span></span>
-                        <button class="copy-button" onclick="copyToClipboard('${sansanMatch.username}')">コピー</button>
-                    </p>
-                    <p>
-                        <span><span class="label">パスワード:</span> <span class="value">${sansanMatch.password}</span></span>
-                        <button class="copy-button" onclick="copyToClipboard('${sansanMatch.password}')">コピー</button>
-                    </p>
-                `;
-                
-                // Sansanテーブルで対応する行をハイライト
-                scrollToAndHighlight('sansanTable', 'ss-' + sansanMatch.id);
-            } else {
-                sansanResults.innerHTML = `<p class="message">該当するSansanデータが見つかりませんでした</p>`;
-            }
-        }
+    if (smartPBXMatch) {
+        smartPBXResults.innerHTML = `
+            <p>
+                <span><span class="label">ID:</span> <span class="value">${smartPBXMatch.id}</span></span>
+            </p>
+            <p>
+                <span><span class="label">ユーザ名:</span> <span class="value">${smartPBXMatch.username}</span></span>
+                <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.username}')">コピー</button>
+            </p>
+            <p>
+                <span><span class="label">パスワード:</span> <span class="value">${smartPBXMatch.password}</span></span>
+                <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.password}')">コピー</button>
+            </p>
+            <p>
+                <span><span class="label">コード:</span> <span class="value">${smartPBXMatch.code}</span></span>
+                <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.code}')">コピー</button>
+            </p>
+        `;
+        
+        // SmartPBXテーブルで対応する行をハイライト
+        scrollToAndHighlight('smartPBXTable', smartPBXMatch.id);
+    } else {
+        smartPBXResults.innerHTML = `<p class="message">該当するSmartPBXデータが見つかりませんでした</p>`;
+    }
+
+    if (sansanMatch) {
+        sansanResults.innerHTML = `
+            <p>
+                <span><span class="label">ID:</span> <span class="value">${sansanMatch.id}</span></span>
+            </p>
+            <p>
+                <span><span class="label">ユーザ名:</span> <span class="value">${sansanMatch.username}</span></span>
+                <button class="copy-button" onclick="copyToClipboard('${sansanMatch.username}')">コピー</button>
+            </p>
+            <p>
+                <span><span class="label">パスワード:</span> <span class="value">${sansanMatch.password}</span></span>
+                <button class="copy-button" onclick="copyToClipboard('${sansanMatch.password}')">コピー</button>
+            </p>
+        `;
+        
+        // Sansanテーブルで対応する行をハイライト
+        scrollToAndHighlight('sansanTable', sansanMatch.id);
+    } else {
+        sansanResults.innerHTML = `<p class="message">該当するSansanデータが見つかりませんでした</p>`;
+    }
+}
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text)
