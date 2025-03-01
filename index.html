@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>データ検索</title>
+    <title>SmartPBX & Sansan 設定</title>
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -11,19 +11,16 @@
             margin: 0 auto;
             padding: 20px;
         }
-
         .container {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-
         .search-container {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-
         .search-box {
             padding: 8px 12px;
             font-size: 16px;
@@ -32,25 +29,15 @@
             flex-grow: 1;
             max-width: 300px;
         }
-
-        .search-btn, .clear-table-btn {
+        .btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
             padding: 8px 16px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 4px;
-            border: none;
         }
-
-        .search-btn {
-            background-color: #4285F4;
-            color: white;
-        }
-
-        .clear-table-btn {
-            background-color: #d9534f;
-            color: white;
-        }
-
         .result-container {
             display: none;
             padding: 15px;
@@ -58,147 +45,72 @@
             border-radius: 5px;
             background-color: #f9f9f9;
         }
-
-        .copy-btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .copy-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            min-width: 200px;
-        }
-
-        .copy-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-        }
-
         .highlighted {
             background-color: #ffffc0 !important;
-        }
-
-        .table-container {
-            max-height: 250px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-        }
-
-        .no-results {
-            color: #d9534f;
-            font-style: italic;
-            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>データ検索</h1>
-
-        <div>
-            <label for="csvFileSmartPBX">SmartPBX CSV: </label>
-            <input type="file" id="csvFileSmartPBX" accept=".csv" onchange="loadCSV(event, 'SmartPBX')">
-            <label for="csvFileSansan">Sansan CSV: </label>
-            <input type="file" id="csvFileSansan" accept=".csv" onchange="loadCSV(event, 'Sansan')">
-        </div>
-
+        <h1>SmartPBX & Sansan 設定</h1>
         <div class="search-container">
             <input type="text" id="searchBox" class="search-box" placeholder="IDを入力して検索...">
-            <button class="search-btn" onclick="searchTable()">検索</button>
-            <button class="clear-table-btn" onclick="clearTables()">テーブルをクリア</button>
+            <button class="btn" onclick="searchTables()">検索</button>
+            <button class="btn" onclick="clearTables()">クリア</button>
         </div>
 
-        <div class="result-container" id="resultSmartPBX">
-            <h2>SmartPBX 検索結果</h2>
-            <div class="copy-btn-group">
-                <div class="copy-item"><div>ユーザID</div><div class="copy-text" id="userIdSmartPBX"></div><button class="copy-btn" onclick="copyText('userIdSmartPBX')">コピー</button></div>
-                <div class="copy-item"><div>パスワード</div><div class="copy-text" id="passwordSmartPBX"></div><button class="copy-btn" onclick="copyText('passwordSmartPBX')">コピー</button></div>
-                <div class="copy-item"><div>コード</div><div class="copy-text" id="codeSmartPBX"></div><button class="copy-btn" onclick="copyText('codeSmartPBX')">コピー</button></div>
-            </div>
-        </div>
+        <h2>SmartPBX テーブル</h2>
+        <table id="smartpbxTable">
+            <thead>
+                <tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
-        <div class="result-container" id="resultSansan">
-            <h2>Sansan 検索結果</h2>
-            <div class="copy-btn-group">
-                <div class="copy-item"><div>ユーザID</div><div class="copy-text" id="userIdSansan"></div><button class="copy-btn" onclick="copyText('userIdSansan')">コピー</button></div>
-                <div class="copy-item"><div>パスワード</div><div class="copy-text" id="passwordSansan"></div><button class="copy-btn" onclick="copyText('passwordSansan')">コピー</button></div>
-                <div class="copy-item"><div>コード</div><div class="copy-text" id="codeSansan"></div><button class="copy-btn" onclick="copyText('codeSansan')">コピー</button></div>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <h2>SmartPBX テーブル</h2>
-            <table id="tableSmartPBX">
-                <thead><tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div class="table-container">
-            <h2>Sansan テーブル</h2>
-            <table id="tableSansan">
-                <thead><tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <h2>Sansan テーブル</h2>
+        <table id="sansanTable">
+            <thead>
+                <tr><th>ID</th><th>ユーザID</th><th>パスワード</th><th>コード</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
     <script>
-        let data = { SmartPBX: [], Sansan: [] };
+        function searchTables() {
+            const searchTerm = document.getElementById("searchBox").value.trim();
+            if (!searchTerm) return;
 
-        function loadCSV(event, type) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                data[type] = e.target.result.trim().split("\n").map(line => line.split(","));
-                populateTable(type);
-            };
-            reader.readAsText(file);
+            highlightMatches("smartpbxTable", searchTerm);
+            highlightMatches("sansanTable", searchTerm);
         }
 
-        function populateTable(type) {
-            const tbody = document.querySelector(`#table${type} tbody`);
-            tbody.innerHTML = data[type].map(row => `<tr><td>${row.join('</td><td>')}</td></tr>`).join("");
-        }
+        function highlightMatches(tableId, searchTerm) {
+            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+            rows.forEach(row => row.classList.remove("highlighted"));
 
-        function searchTable() {
-            // 省略（検索処理を2つのテーブルに適用）
+            for (const row of rows) {
+                const cell = row.cells[0];
+                if (cell && cell.textContent.includes(searchTerm)) {
+                    row.classList.add("highlighted");
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            }
         }
 
         function clearTables() {
-            document.querySelectorAll("tbody").forEach(tbody => tbody.innerHTML = "");
-        }
-
-        function copyText(id) {
-            navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => alert("コピーしました！"));
+            document.getElementById("searchBox").value = "";
+            document.querySelectorAll("tbody tr").forEach(row => row.classList.remove("highlighted"));
         }
     </script>
 </body>
