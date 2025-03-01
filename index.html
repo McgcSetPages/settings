@@ -619,22 +619,19 @@ function scrollToAndHighlight(tableId, searchId) {
     clearHighlights(); // 以前のハイライトをクリア
     
     const tableContainer = document.getElementById(tableId + 'Container');
-    // まずID属性で検索
-    let row = document.getElementById('spbx-' + searchId) || document.getElementById('ss-' + searchId);
+    const table = document.getElementById(tableId);
+    const rows = table.querySelectorAll('tbody tr');
+    let row = null;
     
-    // ID属性で見つからない場合は、テーブル内の最初のセルの値で検索
-    if (!row) {
-        const table = document.getElementById(tableId);
-        const rows = table.querySelectorAll('tbody tr');
-        for (let i = 0; i < rows.length; i++) {
-            const firstCell = rows[i].querySelector('td:first-child');
-            if (firstCell && firstCell.textContent === searchId) {
-                row = rows[i];
-                break;
-            }
+    // テーブル内の最初のセルの値で検索
+    for (let i = 0; i < rows.length; i++) {
+        const firstCell = rows[i].querySelector('td:first-child');
+        if (firstCell && firstCell.textContent === searchId) {
+            row = rows[i];
+            break;
         }
     }
-    
+        
     if (row && tableContainer) {
         // 行をハイライト
         row.classList.add('highlighted');
