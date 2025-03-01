@@ -5,86 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>検索機能付きテーブルとコピーボタン</title>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCSV('smartpbx.csv', 'smartpbxTableBody');
-            loadCSV('sansan.csv', 'sansanTableBody');
-        });
-        
-        function loadCSV(csvFile, tableId) {
-            fetch(csvFile)
-                .then(response => response.text())
-                .then(text => {
-                    const rows = text.split('\n').map(row => row.split(','));
-                    const tableBody = document.getElementById(tableId);
-                    tableBody.innerHTML = '';
-                    rows.forEach(cells => {
-                        if (cells.length < 4) return;
-                        const tr = document.createElement('tr');
-                        cells.forEach(cell => {
-                            const td = document.createElement('td');
-                            td.textContent = cell;
-                            tr.appendChild(td);
-                        });
-                        tableBody.appendChild(tr);
-                    });
-                });
-        }
-        
-        function searchTable() {
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            searchAndDisplay(searchTerm, 'smartpbxTableBody', 'smartpbxResult');
-            searchAndDisplay(searchTerm, 'sansanTableBody', 'sansanResult');
-        }
-        
-        function searchAndDisplay(searchTerm, tableId, resultId) {
-            const tableBody = document.getElementById(tableId);
-            const rows = tableBody.getElementsByTagName('tr');
-            const resultContainer = document.getElementById(resultId);
-            resultContainer.innerHTML = '';
+        document.addEventListener("DOMContentLoaded", function() {
+            let smartPBXData = [];
+            let sansanData = [];
             
-            for (let row of rows) {
-                if (row.cells[0].textContent === searchTerm) {
-                    resultContainer.innerHTML = `<div>${row.cells[1].textContent} <button onclick="copyText('${row.cells[1].textContent}')">コピー</button></div>
-                                                <div>${row.cells[2].textContent} <button onclick="copyText('${row.cells[2].textContent}')">コピー</button></div>
-                                                <div>${row.cells[3].textContent} <button onclick="copyText('${row.cells[3].textContent}')">コピー</button></div>`;
+            function loadCSV(file, callback) {
+                fetch(file)
+                    .then(response => response.text())
+                    .then(text => {
+                        const rows = text.split("\n").map(row => row.split(","));
+                        callback(rows);
+                    })
+                    .catch(error => console.error("CSV読み込みエラー:", error));
+            }
+            
+            function populateTable(tableId, data) {
+                const tbody = document.getElementById(tableId);
+                tbody.innerHTML = "";
+                data.forEach(row => {
+                    let tr = document.createElement("tr");
+                    row.forEach(cell => {
+                        let td = document.createElement("td");
+                        td.textContent = cell;
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+            
+            document.getElementById("clearBtn").addEventListener("click", function() {
+                document.getElementById("searchBox").value = "";
+                document.getElementById("smartPBXUser").textContent = "";
+                document.getElementById("smartPBXPass").textContent = "";
+                document.getElementById("smartPBXCode").textContent = "";
+                document.getElementById("sansanUser").textContent = "";
+                document.getElementById("sansanPass").textContent = "";
+                document.getElementById("sansanCode").textContent = "";
+            });
+            
+            document.getElementById("searchBtn").addEventListener("click", function() {
+                const searchTerm = document.getElementById("searchBox").value.trim();
+                if (!searchTerm) {
+                    alert("IDを入力してください。");
                     return;
                 }
+                
+                function searchData(data, resultContainer) {
+                    const result = data.find(row => row[0] === searchTerm);
+                    if (result) {
+                        document.getElementById(resultContainer + "User").textContent = result[1] || "";
+                        document.getElementById(resultContainer + "Pass").textContent = result[2] || "";
+                        document.getElementById(resultContainer + "Code").textContent = result[3] || "";
+                    } else {
+                        alert("該当データが見つかりません。");
+                    }
+                }
+                
+                searchData(smartPBXData, "smartPBX");
+                searchData(sansanData, "sansan");
+            });
+            
+            function copyText(elementId) {
+                const text = document.getElementById(elementId).textContent;
+                if (text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert("コピーしました！");
+                    }).catch(err => console.error("コピー失敗:", err));
+                } else {
+                    alert("コピーする内容がありません。");
+                }
             }
-            resultContainer.innerHTML = '検索結果なし';
-        }
-        
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => alert('コピーしました: ' + text));
-        }
-        
-        function clearTables() {
-            document.getElementById('smartpbxTableBody').innerHTML = '';
-            document.getElementById('sansanTableBody').innerHTML = '';
-        }
+            
+            loadCSV("smartPBX.csv", data => {
+                smartPBXData = data;
+                populateTable("smartPBXTable", data);
+            });
+            
+            loadCSV("sansan.csv", data => {
+                sansanData = data;
+                populateTable("sansanTable", data);
+            });
+        });
     </script>
 </head>
 <body>
-    <h1>検索機能付きテーブルとコピーボタン</h1>
-    <input type="text" id="searchBox" placeholder="IDを入力">
-    <button onclick="searchTable()">検索</button>
-    <button onclick="clearTables()">クリア</button>
+    <input type="text" id="searchBox" placeholder="IDを入力して検索...">
+    <button id="searchBtn">検索</button>
+    <button id="clearBtn">クリア</button>
     
     <h2>SmartPBX テーブル</h2>
     <table border="1">
         <thead><tr><th>ID</th><th>ユーザ名</th><th>パスワード</th><th>コード</th></tr></thead>
-        <tbody id="smartpbxTableBody"></tbody>
+        <tbody id="smartPBXTable"></tbody>
     </table>
     
     <h2>Sansan テーブル</h2>
     <table border="1">
         <thead><tr><th>ID</th><th>ユーザ名</th><th>パスワード</th><th>コード</th></tr></thead>
-        <tbody id="sansanTableBody"></tbody>
+        <tbody id="sansanTable"></tbody>
     </table>
     
     <h2>SmartPBX 検索結果</h2>
-    <div id="smartpbxResult"></div>
+    <div id="smartPBXResult">
+        <div>ユーザ名: <span id="smartPBXUser"></span> <button onclick="copyText('smartPBXUser')">コピー</button></div>
+        <div>パスワード: <span id="smartPBXPass"></span> <button onclick="copyText('smartPBXPass')">コピー</button></div>
+        <div>コード: <span id="smartPBXCode"></span> <button onclick="copyText('smartPBXCode')">コピー</button></div>
+    </div>
     
     <h2>Sansan 検索結果</h2>
-    <div id="sansanResult"></div>
+    <div id="sansanResult">
+        <div>ユーザ名: <span id="sansanUser"></span> <button onclick="copyText('sansanUser')">コピー</button></div>
+        <div>パスワード: <span id="sansanPass"></span> <button onclick="copyText('sansanPass')">コピー</button></div>
+        <div>コード: <span id="sansanCode"></span> <button onclick="copyText('sansanCode')">コピー</button></div>
+    </div>
 </body>
 </html>
