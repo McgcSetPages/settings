@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPBX & Sansan テーブル v2</title>
+    <title>SmartPBX & Sansan テーブル v3</title>
     <style>
         * {
             box-sizing: border-box;
@@ -148,7 +148,7 @@
     </style>
 </head>
 <body>
-    <h1>SmartPBX & Sansan テーブル v2</h1>
+    <h1>SmartPBX & Sansan テーブル v3</h1>
     
     <div class="search-container">
         <input type="text" id="searchBox" placeholder="IDで検索">
@@ -649,7 +649,7 @@ function scrollToAndHighlight(tableId, searchId) {
     }
 }
 function searchTables() {
-    const searchValue = document.getElementById("searchBox").value;
+    const searchValue = String(document.getElementById("searchBox").value);
     const smartPBXResults = document.getElementById("smartPBXResults");
     const sansanResults = document.getElementById("sansanResults");
 
