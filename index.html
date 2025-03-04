@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPBX & Sansan テーブル v4</title>
+    <title>SmartPBX & Sansan テーブル v1</title>
     <style>
         * {
             box-sizing: border-box;
@@ -174,9 +174,9 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>ユーザ名</th>
+                    <th>ユーザ名ID</th>
                     <th>パスワード</th>
-                    <th>コード</th>
+                    <th>SIPサーバ</th>
                 </tr>
             </thead>
             <tbody>
@@ -318,7 +318,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>ユーザ名</th>
+                    <th>メールアドレス</th>
                     <th>パスワード</th>
                 </tr>
             </thead>
@@ -709,7 +709,7 @@ function searchTables() {
                 <span><span class="label">ID:</span> <span class="value">${smartPBXMatch.id}</span></span>
             </p>
             <p>
-                <span><span class="label">ユーザ名:</span> <span class="value">${smartPBXMatch.username}</span></span>
+                <span><span class="label">ユーザID:</span> <span class="value">${smartPBXMatch.username}</span></span>
                 <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.username}')">コピー</button>
             </p>
             <p>
@@ -717,7 +717,7 @@ function searchTables() {
                 <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.password}')">コピー</button>
             </p>
             <p>
-                <span><span class="label">コード:</span> <span class="value">${smartPBXMatch.code}</span></span>
+                <span><span class="label">SIPサーバ:</span> <span class="value">${smartPBXMatch.code}</span></span>
                 <button class="copy-button" onclick="copyToClipboard('${smartPBXMatch.code}')">コピー</button>
             </p>
         `;
@@ -734,7 +734,7 @@ function searchTables() {
                 <span><span class="label">ID:</span> <span class="value">${sansanMatch.id}</span></span>
             </p>
             <p>
-                <span><span class="label">ユーザ名:</span> <span class="value">${sansanMatch.username}</span></span>
+                <span><span class="label">メールアドレス:</span> <span class="value">${sansanMatch.username}</span></span>
                 <button class="copy-button" onclick="copyToClipboard('${sansanMatch.username}')">コピー</button>
             </p>
             <p>
